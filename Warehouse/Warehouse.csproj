@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>0.1.1-beta</Version>
+    <Version>0.1.2-beta</Version>
     <Authors>kenboc</Authors>
     <Company>Bygdrift</Company>
     <Description>Create modules that can push data to a data warehouse in Azure, and retrieve data in Power BI through CMD model.</Description>
@@ -10,7 +10,7 @@
     <PackageProjectUrl>https://github.com/Bygdrift/Warehouse</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/Bygdrift/Bygdrift.Warehouse.git</RepositoryUrl>
-    <PackageTags>Datalake,CMD,data warehouse</PackageTags>
+    <PackageTags>Datalake,CMD,Warehouse,Azure</PackageTags>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageId>Bygdrift.Warehouse</PackageId>
