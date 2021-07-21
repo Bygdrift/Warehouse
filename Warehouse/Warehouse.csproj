@@ -15,6 +15,8 @@
     <NeutralLanguage>en</NeutralLanguage>
     <PackageId>Bygdrift.Warehouse</PackageId>
     <Product>Bygdrift.Warehouse</Product>
+    <PackageLicenseExpression>BSD-4-Clause</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
