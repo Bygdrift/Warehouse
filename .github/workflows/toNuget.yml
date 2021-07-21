@@ -25,8 +25,8 @@ jobs:
 
 # ***************** PUBLISHING **************** #
 
-    - name: Publish Pixata.Blazor
+    - name: Publish Warehouse to Nuget
       uses: brandedoutcast/publish-nuget@v2.5.5  
       with:   
-        PROJECT_FILE_PATH: Bgd.Warehouse/Bgd.Warehouse.csproj  
+        PROJECT_FILE_PATH: Warehouse/Warehouse.csproj  
         NUGET_KEY: ${{secrets.NUGET_API_KEY}}
