@@ -1,0 +1,9 @@
+﻿Ide:
+	Tænk over Michelles ønske om at kunne sende mail når der er nye opgaver
+Mangler:
+Tests vil fejle fordi der mangler Files mappen og strukturen. Ombyg så den selv danner mapperne.
+Test:
+	Lav en dll som har brug for method fram Common.
+	Kald dll fra common og se om det giver self reference troubles
+	Hvis dette er muligt, kan jeg kalde moduler fra med durable timer function som har endless loop: https://docs.microsoft.com/en-us/azure/azure-functions/durable/durable-functions-timers?tabs=csharp
+	Hvert modul bør kunne testes med standard test

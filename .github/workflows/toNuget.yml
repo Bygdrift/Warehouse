@@ -1,0 +1,32 @@
+# Inspiration: https://www.pixata.co.uk/2021/01/27/using-github-actions-to-publish-nuget-packages-and-deploy-a-web-site/
+name: ToNuget - Release
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: windows-latest  
+    steps:  
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+
+    - name: Setup .NET Core  
+      uses: actions/setup-dotnet@v1.7.2  
+      with:  
+        dotnet-version: '5.0'
+        
+# ***************** TESTS **************** #
+#    - name: Run Tests
+#      run: dotnet test --verbosity normal 
+
+# ***************** PUBLISHING **************** #
+
+    - name: Publish Pixata.Blazor
+      uses: brandedoutcast/publish-nuget@v2.5.5  
+      with:   
+        PROJECT_FILE_PATH: Bgd.Warehouse/Bgd.Warehouse.csproj  
+        NUGET_KEY: ${{secrets.NUGET_API_KEY}}
