@@ -1,15 +1,15 @@
 ﻿namespace Bygdrift.Warehouse.Modules
 {
-    public static class ExporterExtensions
+    public static class ImporterExtensions
     {
-        public static ExportResult Run(this IExporter exporter, bool uploadToDataLake)
+        public static ImportResult Run(this IImporter exporter, bool uploadToDataLake)
         {
-            var result = new ExportResult();
+            var result = new ImportResult();
             result.AppSettingsOk = exporter.VerifyAppSettings();
 
             if (result.AppSettingsOk)
             {
-                var refines = exporter.Export(uploadToDataLake);
+                var refines = exporter.Import(uploadToDataLake);
                 if (refines != null)
                 {
                     result.Refines.AddRange(refines);

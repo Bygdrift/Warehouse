@@ -6,7 +6,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("WarehouseTest")]
-namespace Bygdrift.Warehouse.Modules
+namespace Warehouse.Modules
 {
     internal class NextRun
     {

@@ -4,16 +4,14 @@ using Bygdrift.Warehouse.DataLake.CsvTools;
 
 namespace Bygdrift.Warehouse.Modules
 {
-    public class ExportResult
+    public class ImportResult
     {
-        //public bool RunModule { get; set; }
-        public bool DoRunSchedule { get; set; }
         public bool AppSettingsOk { get; set; }
         public JObject CMDModel { get; set; }
         public CsvSet ImportLog { get; set; }
         public List<IRefine> Refines { get; set; }
 
-        public ExportResult()
+        public ImportResult()
         {
             Refines = new List<IRefine>();
         }

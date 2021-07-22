@@ -5,12 +5,11 @@ using Bygdrift.Warehouse.DataLake.CsvTools;
 
 namespace Bygdrift.Warehouse.Modules
 {
-    public interface IExporter
+    public interface IImporter
     {
         string ModuleName { get; }
-        public string ScheduleExpression { get; }
-        IEnumerable<IRefine> Export(bool ingestToDataLake);
-        internal bool DoRunSchedule(DateTime now);
+        string ScheduleExpression { get; }
+        IEnumerable<IRefine> Import(bool ingestToDataLake);
         internal bool VerifyAppSettings();
         internal JObject CreateCommonDataModel(List<IRefine> refines, bool uploadToDataLake);
         internal CsvSet CreateImportLog(List<IRefine> refines, bool uploadToDataLake);

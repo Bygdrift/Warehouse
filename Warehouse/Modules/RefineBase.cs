@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using Bygdrift.Warehouse.DataLake;
 using Bygdrift.Warehouse.DataLake.CsvTools;
+using Warehouse.Modules;
 
 namespace Bygdrift.Warehouse.Modules
 {
@@ -12,13 +13,13 @@ namespace Bygdrift.Warehouse.Modules
         public List<string> Errors { get; private set; }
         public DateTime? FileDate { get; set; }
         public CsvSet CsvSet { get; set; }
-        public IExporter Exporter { get; }
+        public IImporter Exporter { get; }
         public string TableName { get; }
         public bool IsUploaded { get; set; }
 
         public bool HasErrors { get { return Errors != null && Errors.Count > 0; } }
 
-        public RefineBase(IExporter exporter, string tableName)
+        public RefineBase(IImporter exporter, string tableName)
         {
             Exporter = exporter;
             TableName = tableName;
@@ -75,7 +76,7 @@ namespace Bygdrift.Warehouse.Modules
         bool HasErrors { get; }
         bool IsUploaded { get; set; }
         //string ModuleName { get; }
-        IExporter Exporter { get; }
+        IImporter Exporter { get; }
 
         string TableName { get; }
 

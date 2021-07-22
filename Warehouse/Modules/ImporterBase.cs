@@ -9,15 +9,17 @@ using Bygdrift.Warehouse.DataLake.CsvTools;
 
 namespace Bygdrift.Warehouse.Modules
 {
-    public class ExporterBase : IExporter
+    public class ImporterBase : IImporter
     {
         public string ModuleName { get; }
+
         public string ScheduleExpression { get; }
+
         public readonly IConfigurationRoot Config;
         public readonly ILogger Log;
-        public readonly List<string> MandatoryAppSettings = new List<string> { "RunModules", "DataLakeAccountName", "DataLakeAccountKey", "DataLakeServiceUrl", "DataLakeBasePath" };
+        public readonly List<string> MandatoryAppSettings = new();
 
-        public ExporterBase(IConfigurationRoot config, ILogger log, string moduleName, string scheduleExpression, string[] mandatoryAppSettings)
+        public ImporterBase(IConfigurationRoot config, ILogger log, string moduleName, string scheduleExpression, string[] mandatoryAppSettings)
         {
             Config = config;
             Log = log;
@@ -27,38 +29,13 @@ namespace Bygdrift.Warehouse.Modules
                 MandatoryAppSettings.AddRange(mandatoryAppSettings);
         }
 
-        public static ExportResult Run(IExporter exporter, bool uploadToDataLake)
-        {
-            var result = new ExportResult();
-            result.DoRunSchedule = exporter.DoRunSchedule(DateTime.UtcNow);
-            result.AppSettingsOk = exporter.VerifyAppSettings();
-
-            if (result.DoRunSchedule && result.AppSettingsOk)
-            {
-                var refines = exporter.Export(uploadToDataLake);
-                if (refines != null)
-                {
-                    result.Refines.AddRange(refines);
-                    result.CMDModel = exporter.CreateCommonDataModel(result.Refines, uploadToDataLake);
-                    result.ImportLog = exporter.CreateImportLog(result.Refines, uploadToDataLake);
-                }
-            }
-            return result;
-        }
-
-        public virtual IEnumerable<IRefine> Export(bool ingestToDataLake)
+        public virtual IEnumerable<IRefine> Import(bool ingestToDataLake)
         {
             return default;
         }
 
-        /// <summary>If called module should be run, due to the current module scheduleExpression</summary>
-        bool IExporter.DoRunSchedule(DateTime now)
-        {
-            return new NextRun("Call_modules_each_hour").DoRun(now, ScheduleExpression);
-        }
-
         /// <summary>If called module mandatory appSettings are present</summary>
-        bool IExporter.VerifyAppSettings()
+        bool IImporter.VerifyAppSettings()
         {
             var res = true;
             foreach (var name in MandatoryAppSettings)
@@ -71,7 +48,7 @@ namespace Bygdrift.Warehouse.Modules
             return res;
         }
 
-        JObject IExporter.CreateCommonDataModel(List<IRefine> refines, bool uploadToDataLake)
+        JObject IImporter.CreateCommonDataModel(List<IRefine> refines, bool uploadToDataLake)
         {
             var dataLake = new DataLake.DataLake(Config, ModuleName, "current");
 
@@ -90,7 +67,7 @@ namespace Bygdrift.Warehouse.Modules
             return default;
         }
 
-        CsvSet IExporter.CreateImportLog(List<IRefine> refines, bool uploadToDataLake)
+        CsvSet IImporter.CreateImportLog(List<IRefine> refines, bool uploadToDataLake)
         {
             return ImportLog.CreateLog(Config, ModuleName, "importLog", refines, uploadToDataLake);
         }
