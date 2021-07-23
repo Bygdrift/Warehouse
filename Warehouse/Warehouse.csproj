@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <Version>0.1.3-beta</Version>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <Version>0.1.5-beta</Version>
     <Authors>kenboc</Authors>
     <Company>Bygdrift</Company>
     <Description>Create modules that can push data to a data warehouse in Azure, and retrieve data in Power BI through CMD model.</Description>
@@ -21,9 +21,8 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Files.DataLake" Version="12.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.17" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.17" />
     <PackageReference Include="NCrontab.Signed" Version="3.3.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />    
   </ItemGroup>

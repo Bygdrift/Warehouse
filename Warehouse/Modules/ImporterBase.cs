@@ -17,7 +17,7 @@ namespace Bygdrift.Warehouse.Modules
 
         public readonly IConfigurationRoot Config;
         public readonly ILogger Log;
-        public readonly List<string> MandatoryAppSettings = new();
+        public readonly List<string> MandatoryAppSettings = new List<string>();
 
         public ImporterBase(IConfigurationRoot config, ILogger log, string moduleName, string scheduleExpression, string[] mandatoryAppSettings)
         {
