@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using static NCrontab.CrontabSchedule;
 
 [assembly: InternalsVisibleTo("WarehouseTest")]
 namespace Warehouse.Modules
@@ -21,7 +22,7 @@ namespace Warehouse.Modules
 
         internal bool DoRun(DateTime now, string scheduleExpression)
         {
-            var schedule = CrontabSchedule.Parse(scheduleExpression);
+            var schedule = CrontabSchedule.Parse(scheduleExpression, new ParseOptions { IncludingSeconds = true });
             var lastRun = GetLastRun();
             var nextRunFromLastRun = schedule.GetNextOccurrence(lastRun);
             var hourSpanBetweenRuns = (schedule.GetNextOccurrence(nextRunFromLastRun.AddSeconds(1)) - nextRunFromLastRun).TotalHours;
@@ -33,7 +34,7 @@ namespace Warehouse.Modules
 
         internal static double GetHourSpanBetweenRuns(string scheduleExpression)
         {
-            var schedule = CrontabSchedule.Parse(scheduleExpression);
+            var schedule = CrontabSchedule.Parse(scheduleExpression, new ParseOptions { IncludingSeconds = true });
             var nextRunFromLastRun = schedule.GetNextOccurrence(DateTime.MinValue);
             return (schedule.GetNextOccurrence(nextRunFromLastRun.AddSeconds(1)) - nextRunFromLastRun).TotalHours;
         }
