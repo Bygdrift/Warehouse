@@ -4,10 +4,10 @@ This solution makes it easy to write C# modules that fetches data from different
 
 It also handles creation of Common Data Models, that enables integrations between data lake and Power BI, with Power BI Dataflows.
 
-It is packed as a \[nuget library\](https://www.nuget.org/packages/Bygdrift.Warehouse)
+It is packed as a [nuget library](https://www.nuget.org/packages/Bygdrift.Warehouse).
 
 Modules that uses this nuget library:
 
-*   Ingest data from the FM-system: Dalux and up to a data lake: Warehouse.Modules.DaluxFM\]\](https://github.com/hillerod/Warehouse.Modules.DaluxFM)
+*   Ingest data from the FM-system: Dalux and up to a data lake: [Warehouse.Modules.DaluxFM](https://github.com/hillerod/Warehouse.Modules.DaluxFM).
 
 [The license](LICENSE.md)
