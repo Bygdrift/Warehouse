@@ -8,26 +8,26 @@ using Warehouse.Modules;
 
 namespace Bygdrift.Warehouse.Modules
 {
-    public class RefineBase : IRefine
+    public class RefineBase
     {
-        public List<string> Errors { get; private set; }
-        public DateTime? FileDate { get; set; }
+        public List<string> Errors { get; internal set; }
         public CsvSet CsvSet { get; set; }
-        public IImporter Exporter { get; }
+        public ImportBase Importer { get; }
         public string TableName { get; }
-        public bool IsUploaded { get; set; }
+        internal DateTime UploadFileDate { get; set; }
+        internal bool UploadAsDecodedFile { get; set; }
+        internal string UploadAsDecodedPath { get; set; }
+        internal bool UploadAsRawFile { get; set; }
+        internal string UploadAsRawFileExtension { get; set; }
+        internal Stream UploadAsRawFileStream { get; set; }
 
         public bool HasErrors { get { return Errors != null && Errors.Count > 0; } }
 
-        public RefineBase(IImporter exporter, string tableName)
+        public RefineBase(ImportBase importer, string tableName)
         {
-            Exporter = exporter;
+            Importer = importer;
             TableName = tableName;
             CsvSet = new CsvSet();
-        }
-
-        public virtual void Refine()
-        {
         }
 
         public void AddError(string error)
@@ -36,54 +36,64 @@ namespace Bygdrift.Warehouse.Modules
             Errors.Add(error);
         }
 
-        public void UploadFile(IConfigurationRoot config, DateTime fileDate, string rawFileExtension, Stream rawStream, bool uploadAsRaw, bool uploadAsDecoded, bool uploadAsCurrent, bool uploadAsAccumulated)
+        /// <summary>
+        /// When calling: importer.ImportToDataLake, the csv will be uploaded to datalake
+        /// </summary>
+        public void ImportCsvFileToDataLake(DateTime fileDate)
         {
-            if (HasErrors)
-                return;
-
-            var savePerHour = NextRun.GetHourSpanBetweenRuns(Exporter.ScheduleExpression) < 24;
-
-            var ingest = new Ingest(config, Exporter.ModuleName, TableName);
-            if (uploadAsRaw)
-                ingest.SaveAsRaw(rawStream, rawFileExtension, fileDate, savePerHour);
-            if (uploadAsDecoded)
-                ingest.SaveASDecoded(CsvSet, fileDate, savePerHour);
-            if (uploadAsCurrent)
-                ingest.SaveAsCurrent(CsvSet, fileDate);
-            if (uploadAsAccumulated)
-                ingest.SaveAsAccumulated(CsvSet);
-
-            FileDate = fileDate;
-            IsUploaded = true;
+            UploadAsDecodedFile = true;
+            UploadFileDate = fileDate.ToUniversalTime();
+            UploadAsDecodedPath = string.Join('/', Ingest.CreateDatePath(SubDirectory.Decode, UploadFileDate, Importer.SavePerHour), TableName + ".csv");
         }
 
-        public void UploadFile(IConfigurationRoot config, DateTime fileDate, bool uploadAsDecoded, bool uploadAsCurrent, bool uploadAsAccumulated)
+        /// <summary>
+        /// When calling: importer.ImportToDataLake, the raw file will be uploaded to datalake
+        /// </summary>
+        public void ImportRawFileToDataLake(DateTime fileDate, string rawFileExtension, Stream rawStream)
         {
-            UploadFile(config, fileDate, null, null, false, uploadAsDecoded, uploadAsCurrent, uploadAsAccumulated);
+            UploadFileDate = fileDate.ToUniversalTime();
+            UploadAsRawFile = true;
+            UploadAsRawFileExtension = rawFileExtension;
+            UploadAsRawFileStream = rawStream;
         }
+
+        //private void UploadFile(IConfigurationRoot config, DateTime fileDate, string rawFileExtension, Stream rawStream, bool uploadAsRaw, bool uploadAsDecoded)
+        //{
+        //    if (HasErrors)
+        //        return;
+
+        //    var savePerHour = NextRun.GetHourSpanBetweenRuns(Importer.ScheduleExpression) < 24;
+
+        //    var ingest = new Ingest(config, Importer.ModuleName, TableName);
+        //    if (uploadAsRaw)
+        //        ingest.SaveAsRaw(rawStream, rawFileExtension, fileDate, savePerHour);
+        //    if (uploadAsDecoded)
+        //        ingest.SaveASDecoded(CsvSet, fileDate, savePerHour);
+
+        //    FileDate = fileDate;
+        //    IsUploaded = true;
+        //    IsUploadedAsDecodedFile = uploadAsDecoded;
+        //}
+
+        //public void UploadDecodedFile(IConfigurationRoot config, DateTime fileDate)
+        //{
+        //    UploadFile(config, fileDate, null, null, false, true);
+        //}
+
+        //public void UploadRawFile(IConfigurationRoot config, DateTime fileDate, string rawFileExtension, Stream rawStream)
+        //{
+        //    UploadFile(config, fileDate, rawFileExtension, rawStream, true, false);
+        //}
+
+        //public void UploadRawAndDecodedFile(IConfigurationRoot config, DateTime fileDate, string rawFileExtension, Stream rawStream)
+        //{
+        //    UploadFile(config, fileDate, rawFileExtension, rawStream, true, true);
+
+        //}
 
         public IEnumerable<CsvSet> GetDecodedFilesFromDataLake(string tableName, DateTime from, DateTime to)
         {
             return default;
         }
-    }
-
-    public interface IRefine
-    {
-        CsvSet CsvSet { get; set; }
-        List<string> Errors { get; }
-        DateTime? FileDate { get; set; }
-        bool HasErrors { get; }
-        bool IsUploaded { get; set; }
-        //string ModuleName { get; }
-        IImporter Exporter { get; }
-
-        string TableName { get; }
-
-        void AddError(string error);
-        IEnumerable<CsvSet> GetDecodedFilesFromDataLake(string tableName, DateTime from, DateTime to);
-        void Refine();
-        void UploadFile(IConfigurationRoot config, DateTime fileDate, bool uploadAsDecoded, bool uploadAsCurrent, bool uploadAsAccumulated);
-        void UploadFile(IConfigurationRoot config, DateTime fileDate, string rawFileExtension, Stream rawStream, bool uploadAsRaw, bool uploadAsDecoded, bool uploadAsCurrent, bool uploadAsAccumulated);
     }
 }

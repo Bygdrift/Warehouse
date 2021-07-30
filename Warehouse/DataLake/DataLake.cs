@@ -37,12 +37,10 @@ namespace Bygdrift.Warehouse.DataLake
             }
         }
 
-        /// <param name="module">såsom "DaluxFM"</param>
-        /// <param name="subDirectory">Såsom "current"</param>
+        /// <param name="module">Such as "DaluxFM"</param>
+        /// <param name="subDirectory">Such as "Current". If null, then files are saved in the base directory</param>
         public DataLake(IConfigurationRoot config, string module, string subDirectory)
         {
-            //this.config = config;
-            //this.module = module;
             ServiceUri = new Uri(config["DataLakeServiceUrl"]);
             if (ServiceUri == null) throw new Exception("The value for DataLakeServiceUrl, has to be set in config.");
             storageAccountName = config["DataLakeAccountName"];
@@ -52,8 +50,8 @@ namespace Bygdrift.Warehouse.DataLake
             BasePath = config["DataLakeBasePath"];
             if (BasePath == null) throw new Exception("The value for DataLakeBasePath, has to be set in config.");
 
-            BaseDirectory = module.ToString().ToLower();
-            SubDirectory = subDirectory.ToLower();
+            BaseDirectory = module;
+            SubDirectory = subDirectory;
         }
 
         public IEnumerable<KeyValuePair<DateTime, CsvSet>> GetDecodedFilesFromDataLake(string tableName, DateTime from, DateTime to)
@@ -62,7 +60,7 @@ namespace Bygdrift.Warehouse.DataLake
             if (!fileSystem.Exists())
                 yield break;
 
-            var directory = fileSystem.GetDirectoryClient(string.Join('/', BaseDirectory, Warehouse.DataLake.SubDirectory.decode));
+            var directory = fileSystem.GetDirectoryClient(string.Join('/', BaseDirectory, Warehouse.DataLake.SubDirectory.Decode));
             if (!directory.Exists())
                 yield break;
 
@@ -166,7 +164,7 @@ namespace Bygdrift.Warehouse.DataLake
             if (!fileSystem.Exists())
                 fileSystem.Create();
 
-            var directory = fileSystem.GetDirectoryClient(string.Join('/', BaseDirectory, SubDirectory));
+            var directory = fileSystem.GetDirectoryClient(SubDirectory != null ? string.Join('/', BaseDirectory, SubDirectory) : BaseDirectory);
             if (!directory.Exists())
                 directory.Create();
 

@@ -9,11 +9,12 @@ namespace Bygdrift.Warehouse.Modules
         public bool AppSettingsOk { get; set; }
         public JObject CMDModel { get; set; }
         public CsvSet ImportLog { get; set; }
-        public List<IRefine> Refines { get; set; }
+        public List<RefineBase> Refines { get; set; }
 
-        public ImportResult()
+        public ImportResult(bool appSettingsOk)
         {
-            Refines = new List<IRefine>();
+            AppSettingsOk = appSettingsOk;
+            Refines = new List<RefineBase>();
         }
     }
 }

@@ -240,9 +240,7 @@ namespace Bygdrift.Warehouse.DataLake.CsvTools
                     return;
             }
             else
-            {
                 ColTypes.Add(col, null);
-            }
 
             if (long.TryParse(valueAsString, NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out _))
             {

@@ -15,15 +15,15 @@ namespace Bygdrift.Warehouse.DataLake
     {
         private readonly DataLake dataLake;
 
-        public List<IRefine> Refines { get; }
+        public RefineBase[] Refines { get; }
         public JObject Model { get; }
 
         /// <param name="baseDirectory">såsom "DaluxFM"</param>
         /// <param name="subDirectory">Såsom "current"</param>
         /// <param name="saveInCurrent">Saves model in data lake, in the folder "Curent"</param>
-        public CommonDataModel(IConfigurationRoot config, string module, List<IRefine> refines, bool uploadToDataLake)
+        public CommonDataModel(IConfigurationRoot config, string module, RefineBase[] refines, bool uploadToDataLake)
         {
-            dataLake = new DataLake(config, module, "current");
+            dataLake = new DataLake(config, module, null);
             Refines = refines;
             Model = CreateModel();
 
@@ -36,13 +36,6 @@ namespace Bygdrift.Warehouse.DataLake
             string dataAsString = JsonConvert.SerializeObject(Model, Formatting.Indented);
             dataLake.SaveStringToDataLake("model.json", dataAsString);
         }
-
-        //public static IEnumerable<Ingest> GetIngestsDistinctFromDate(IEnumerable<Ingest> ingests)
-        //{
-        //    foreach (var item in ingests)
-        //        if (!ingests.Any(o => o.FileDate > item.FileDate))
-        //            yield return item;
-        //}
 
         private JObject CreateModel()
         {
@@ -59,8 +52,8 @@ namespace Bygdrift.Warehouse.DataLake
             };
 
             var entities = new JArray();
-            foreach (var item in Refines)
-                CreateEntity(ref entities, item);
+            foreach (var refine in Refines)
+                CreateEntity(ref entities, refine);
 
             res.Add(new JProperty("entities", entities));
 
@@ -72,15 +65,15 @@ namespace Bygdrift.Warehouse.DataLake
             foreach (var item in Refines)
             {
                 if (Refines.Count(o => o.TableName == item.TableName) > 1)
-                    throw new Exception($"Model.json cannot be build. There are more than one entity called '{item.TableName}'.");
+                    throw new Exception($"model.json cannot be build. There are more than one entity called '{item.TableName}'.");
 
                 foreach (var header in item.CsvSet.Headers)
                     if (item.CsvSet.Headers.Count(o => o.Value == header.Value) > 1)
-                        throw new Exception($"Model.json cannot be build. There are more than one attribute called '{header.Value}', in entity '{item.TableName}'.");
+                        throw new Exception($"model.json cannot be build. There are more than one attribute called '{header.Value}', in entity '{item.TableName}'.");
             }
         }
 
-        internal void CreateEntity(ref JArray entities, IRefine refine)
+        internal void CreateEntity(ref JArray entities, RefineBase refine)
         {
             var entity = new JObject
             {
@@ -107,8 +100,9 @@ namespace Bygdrift.Warehouse.DataLake
                 new JProperty("refreshTime", DateTime.UtcNow.ToString("s"))
             };
 
-            var path = HttpUtility.UrlPathEncode(string.Join('/', dataLake.ServiceUri.ToString().TrimEnd('/'), dataLake.BasePath, dataLake.BaseDirectory, dataLake.SubDirectory, refine.TableName + ".csv").Replace("\\", "/"));
-            partition.Add(new JProperty("location", path));
+            var path = string.Join('/', dataLake.ServiceUri.ToString().TrimEnd('/'), dataLake.BasePath, dataLake.BaseDirectory, refine.UploadAsDecodedPath);
+            var urlPath = HttpUtility.UrlPathEncode(path);
+            partition.Add(new JProperty("location", urlPath));
             var fileFormatSettings = new JObject
             {
                 new JProperty("$type", "CsvFormatSettings"),
