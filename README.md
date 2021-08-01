@@ -8,6 +8,7 @@ It is packed as a [nuget library](https://www.nuget.org/packages/Bygdrift.Wareho
 
 Modules that uses this nuget library:
 
-*   Ingest data from the FM-system: Dalux and push data to a data lake: [Warehouse.Modules.DaluxFM](https://github.com/hillerod/Warehouse.Modules.DaluxFM).
+*   Ingest data from the FM-system: Dalux and push data to a data lake: [Warehouse.Modules.DaluxFM](https://github.com/hillerod/Warehouse.Modules.DaluxFM)
+*   Get data from Eloverblik - a Danish platform that shows power consumption: [Warehouse.Modules.Eloverblik](https://github.com/hillerod/Warehouse.Modules.Eloverblik)
 
 [The license](LICENSE.md)
