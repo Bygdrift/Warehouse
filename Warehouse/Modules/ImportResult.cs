@@ -6,14 +6,12 @@ namespace Bygdrift.Warehouse.Modules
 {
     public class ImportResult
     {
-        public bool AppSettingsOk { get; set; }
         public JObject CMDModel { get; set; }
         public CsvSet ImportLog { get; set; }
         public List<RefineBase> Refines { get; set; }
 
-        public ImportResult(bool appSettingsOk)
+        public ImportResult()
         {
-            AppSettingsOk = appSettingsOk;
             Refines = new List<RefineBase>();
         }
     }

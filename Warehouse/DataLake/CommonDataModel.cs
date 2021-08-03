@@ -2,18 +2,18 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Web;
 using Bygdrift.Warehouse.Modules;
+using Bygdrift.Warehouse.DataLake.DataLakeTools;
 
 [assembly: InternalsVisibleTo("Warehouse.Common.Tests")]
 namespace Bygdrift.Warehouse.DataLake
 {
     class CommonDataModel
     {
-        private readonly DataLake dataLake;
+        private readonly DataLakeTools.DataLake dataLake;
 
         public RefineBase[] Refines { get; }
         public JObject Model { get; }
@@ -21,9 +21,9 @@ namespace Bygdrift.Warehouse.DataLake
         /// <param name="baseDirectory">såsom "DaluxFM"</param>
         /// <param name="subDirectory">Såsom "current"</param>
         /// <param name="saveInCurrent">Saves model in data lake, in the folder "Curent"</param>
-        public CommonDataModel(IConfigurationRoot config, string module, RefineBase[] refines, bool uploadToDataLake)
+        public CommonDataModel(string connectionString, string container, string module, RefineBase[] refines, bool uploadToDataLake)
         {
-            dataLake = new DataLake(config, module, null);
+            dataLake = new DataLakeTools.DataLake(connectionString, container, module);
             Refines = refines;
             Model = CreateModel();
 
@@ -34,7 +34,7 @@ namespace Bygdrift.Warehouse.DataLake
         internal void SaveToDataLake()
         {
             string dataAsString = JsonConvert.SerializeObject(Model, Formatting.Indented);
-            dataLake.SaveStringToDataLake("model.json", dataAsString);
+            dataLake.SaveStringToDataLake(null, "model.json", dataAsString);
         }
 
         private JObject CreateModel()
@@ -100,7 +100,7 @@ namespace Bygdrift.Warehouse.DataLake
                 new JProperty("refreshTime", DateTime.UtcNow.ToString("s"))
             };
 
-            var path = string.Join('/', dataLake.ServiceUri.ToString().TrimEnd('/'), dataLake.BasePath, dataLake.BaseDirectory, refine.UploadAsDecodedPath);
+            var path = string.Join('/', dataLake.ServiceUri.ToString().Replace(".dfs.", ".blob.").TrimEnd('/'), dataLake.Container, dataLake.Module, refine.UploadAsDecodedPath);
             var urlPath = HttpUtility.UrlPathEncode(path);
             partition.Add(new JProperty("location", urlPath));
             var fileFormatSettings = new JObject

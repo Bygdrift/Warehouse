@@ -2,9 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Bygdrift.Warehouse.DataLake;
 using Bygdrift.Warehouse.DataLake.CsvTools;
-using Warehouse.Modules;
+using Bygdrift.Warehouse.DataLake.DataLakeTools;
 
 namespace Bygdrift.Warehouse.Modules
 {
@@ -43,7 +42,7 @@ namespace Bygdrift.Warehouse.Modules
         {
             UploadAsDecodedFile = true;
             UploadFileDate = fileDate.ToUniversalTime();
-            UploadAsDecodedPath = string.Join('/', Ingest.CreateDatePath(SubDirectory.Decode, UploadFileDate, Importer.SavePerHour), TableName + ".csv");
+            UploadAsDecodedPath = string.Join('/', DataLake.DataLakeTools.DataLake.CreateDatePath(SubDirectory.Decode, UploadFileDate, Importer.SavePerHour), TableName + ".csv");
         }
 
         /// <summary>

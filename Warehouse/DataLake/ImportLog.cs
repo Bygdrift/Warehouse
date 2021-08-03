@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Bygdrift.Warehouse.DataLake.CsvTools;
 using Bygdrift.Warehouse.Modules;
+using Bygdrift.Warehouse.DataLake.DataLakeTools;
 
 namespace Bygdrift.Warehouse.DataLake
 {
@@ -12,7 +13,7 @@ namespace Bygdrift.Warehouse.DataLake
     /// </summary>
     class ImportLog
     {
-        public static CsvSet CreateLog(IConfigurationRoot config, string module, string logTableName, List<RefineBase> refines, bool uploadToDataLake)
+        public static CsvSet CreateLog(string connectionString, string container, string module, string logTableName, List<RefineBase> refines, bool uploadToDataLake)
         {
             var csv = new CsvSet();
             csv.AddHeaders("Table, Uploaded, Headers, ErrorsCount, Errors");
@@ -30,15 +31,15 @@ namespace Bygdrift.Warehouse.DataLake
                 }
 
             if(uploadToDataLake)
-                Save(config, module, csv, DateTime.UtcNow);
+                Save(connectionString, container, module, csv, DateTime.UtcNow);
 
             return csv;
         }
 
-        private static void Save(IConfigurationRoot config, string module, CsvSet csv, DateTime utcNow)
+        private static void Save(string connectionString, string container, string module, CsvSet csv, DateTime utcNow)
         {
-            var dataLake = new DataLake(config, module, null);
-            dataLake.SaveCsvToDataLake("ImportLog.csv", csv);
+            var dataLake = new DataLakeTools.DataLake(connectionString, container, module);
+            dataLake.SaveCsvToDataLake(null, "ImportLog.csv", csv);
         }
 
         private static string ErrorsAsString(List<string> errors)
