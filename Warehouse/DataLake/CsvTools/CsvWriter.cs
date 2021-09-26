@@ -9,7 +9,8 @@ namespace Bygdrift.Warehouse.DataLake.CsvTools
     {
         public static void Write(this CsvSet csv, string destPath, int? take = null)
         {
-            if (!csv.Records.Any()) return;
+            if (csv == null || !csv.Records.Any()) 
+                return;
 
             var stream = csv.Write(take);
 

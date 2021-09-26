@@ -10,5 +10,6 @@ Modules that uses this nuget library:
 
 *   Ingest data from the FM-system: Dalux and push data to a data lake: [Warehouse.Modules.DaluxFM](https://github.com/hillerod/Warehouse.Modules.DaluxFM)
 *   Get data from Eloverblik - a Danish platform that shows power consumption: [Warehouse.Modules.Eloverblik](https://github.com/hillerod/Warehouse.Modules.Eloverblik)
+*   Get data from Outlook Exchange on room bookings: [Warehouse.Modules.OutlookCalendar](https://github.com/hillerod/Warehouse.Modules.OutlookCalendar)
 
-[The license](LICENSE.md)
+[The license](LICENSE.txt)

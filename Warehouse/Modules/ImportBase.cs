@@ -1,12 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using Bygdrift.Warehouse.DataLake;
 using Bygdrift.Warehouse.DataLake.CsvTools;
-using System;
-using NCrontab;
 using Bygdrift.Warehouse.DataLake.DataLakeTools;
 
 namespace Bygdrift.Warehouse.Modules
@@ -15,21 +12,27 @@ namespace Bygdrift.Warehouse.Modules
     {
         public string ConnectionString { get; }
         public string Container { get; }
-        public string ModuleName { get; }
-        public string ScheduleExpression { get; }
+        public static string ModuleName { get; set; }
         public ILogger Log { get; }
 
-        /// <summary>If per hour, then folder structure in datalake will be like decode/2021/07/28/11/</summary>
-        public bool SavePerHour { get; }
+        private DataLake.DataLakeTools.DataLake _dataLake;
 
-        public ImportBase(ILogger log, string connectionString, string container, string moduleName, string scheduleExpression)
+        public DataLake.DataLakeTools.DataLake DataLake
+        {
+            get
+            {
+
+                _dataLake ??= new DataLake.DataLakeTools.DataLake(ConnectionString, Container, ModuleName);
+                return _dataLake;
+            }
+        }
+
+        public ImportBase(ILogger log, string connectionString, string container, string moduleName)
         {
             Log = log;
             ConnectionString = connectionString;
             Container = container;
             ModuleName = moduleName;
-            ScheduleExpression = scheduleExpression;
-            SavePerHour = GetHourSpanBetweenRuns(ScheduleExpression) < 24;
         }
 
         public ImportResult ImportToDataLake(IEnumerable<RefineBase> refines, bool uploadToDataLake = true)
@@ -38,104 +41,43 @@ namespace Bygdrift.Warehouse.Modules
             if (refines != null)
             {
                 if (uploadToDataLake)
-                    UploadRefinesToDataLake(refines);
+                    UploadCsvToDataLake(refines);
 
                 result.Refines.AddRange(refines);
-                result.ImportLog = CreateImportLog(result.Refines, uploadToDataLake);
-                result.CMDModel = CreateCommonDataModel(RefinesWithImportLog(result), uploadToDataLake);
+                result.ImportLog = ImportLog.CreateLog(ConnectionString, Container, ModuleName, "importLog", refines, uploadToDataLake);
+                result.CommonDataModel = new CommonDataModel(ConnectionString, Container, ModuleName, refines, result.ImportLog, Log, uploadToDataLake).Model;
+
+                if (refines.Where(o => o.Errors != null).Any())
+                    Log.LogError($"There should have been uploaded {refines.Count(o => o.CsvAddToCommonDataModel)} csv files, but there where {refines.Select(o => o.Errors).Count() } errors, that are described in ImportLog.csv.");
+                else
+                    Log.LogInformation($"Created model.json, containing {refines.Count(o => o.CsvAddToCommonDataModel)} csv files (ImportLog.csv included).");
+
             }
             return result;
         }
 
-        private void UploadRefinesToDataLake(IEnumerable<RefineBase> refines)
+        private void UploadCsvToDataLake(IEnumerable<RefineBase> refines)
         {
             foreach (var refine in refines)
             {
-                var dataLake = new DataLake.DataLakeTools.DataLake(ConnectionString, Container, ModuleName);
+                if (refine.FileStream != null)
+                    if (refine.FileStreamFolderStructure == FolderStructure.Path)
+                        DataLake.SaveStream(refine.FileStreamBasePath, refine.TableName + "." + refine.FileStreamExtension, refine.FileStream);
+                    else
+                        DataLake.SaveStreamToDateTimeFolder(refine.FileStreamBasePath, refine.TableName, refine.FileStream, refine.FileStreamExtension, refine.FilestreamDateTime, refine.FileStreamFolderStructure == FolderStructure.DateTimePath);
 
-                if (refine.UploadAsRawFile)
-                    dataLake.SaveAsRaw(refine.TableName, refine.UploadAsRawFileStream, refine.UploadAsRawFileExtension, refine.UploadFileDate, SavePerHour);
-                if (refine.UploadAsDecodedFile)
-                    dataLake.SaveAsDecoded(refine.TableName, refine.CsvSet, refine.UploadFileDate, SavePerHour);
+                if (refine.CsvSet.Headers.Any())
+                    if (refine.CsvFolderStructure == FolderStructure.Path)
+                        DataLake.SaveCsv(refine.CsvBasePath, refine.TableName + ".csv", refine.CsvSet);
+                    else
+                        DataLake.SaveCsvToDateTimeFolder(refine.CsvBasePath, refine.TableName, refine.CsvSet, refine.CsvFileDateTime, refine.CsvFolderStructure == FolderStructure.DateTimePath);
             }
         }
 
-        private static double GetHourSpanBetweenRuns(string scheduleExpression)
-        {
-            var schedule = CrontabSchedule.Parse(scheduleExpression, new CrontabSchedule.ParseOptions { IncludingSeconds = true });
-            var nextRunFromLastRun = schedule.GetNextOccurrence(DateTime.MinValue);
-            return (schedule.GetNextOccurrence(nextRunFromLastRun.AddSeconds(1)) - nextRunFromLastRun).TotalHours;
-        }
-
-
-        //private void UploadFile(IConfigurationRoot config, DateTime fileDate, string rawFileExtension, Stream rawStream, bool uploadAsRaw, bool uploadAsDecoded)
-        //{
-        //    if (HasErrors)
-        //        return;
-
-        //    var savePerHour = NextRun.GetHourSpanBetweenRuns(Importer.ScheduleExpression) < 24;
-
-        //    var ingest = new Ingest(config, Importer.ModuleName, TableName);
-        //    if (uploadAsRaw)
-        //        ingest.SaveAsRaw(rawStream, rawFileExtension, fileDate, savePerHour);
-        //    if (uploadAsDecoded)
-        //        ingest.SaveASDecoded(CsvSet, fileDate, savePerHour);
-
-        //    FileDate = fileDate;
-        //    IsUploaded = true;
-        //    IsUploadedAsDecodedFile = uploadAsDecoded;
-        //}
-
-
-        ///// <summary>If called module mandatory appSettings are present</summary>
-        //internal bool VerifyAppSettings()
-        //{
-        //    var res = true;
-        //    foreach (var name in MandatoryAppSettings)
-        //        if (Config[name] == null)
-        //        {
-        //            Log.LogError($"The appSetting: {name} are missing.");
-        //            res = false;
-        //        }
-
-        //    return res;
-        //}
-
-        internal JObject CreateCommonDataModel(RefineBase[] refines, bool uploadToDataLake)
+        public CsvSet GetCsvSetFromDataLake(string Subdirectory, string filename)
         {
             var dataLake = new DataLake.DataLakeTools.DataLake(ConnectionString, Container, ModuleName);
-
-            if (!uploadToDataLake || refines.Any(o => o.UploadAsDecodedFile))
-            {
-                var model = new CommonDataModel(ConnectionString, Container, ModuleName, refines, uploadToDataLake);
-                Log.LogInformation($"Created model.json, containing {refines.Count(o => o.UploadAsDecodedFile)} csv files (ImportLog.csv included).");
-                return model.Model;
-            }
-            else
-            {
-                Log.LogError($"There should have been uploaded {refines.Count(o => o.UploadAsDecodedFile)} files, but there where {refines.Select(o => o.Errors).Count() } errors, that are described in ImportLog.csv.");
-                return default;
-            }
-
-            //Jeg skal slette alle filer som ikke har været uploadet til current
-            //Ingest.DeleteCurrentDirectoryInDatalake(Config, FunctionApp.TimerTrigger.database);  //Notice
-        }
-
-        //Adds ImportLog to Refines:
-        private static RefineBase[] RefinesWithImportLog(ImportResult result)
-        {
-            var res = new List<RefineBase>();
-            res.AddRange(result.Refines);
-
-            var logRefine = new RefineBase(null, "ImportLog");
-            logRefine.CsvSet = result.ImportLog;
-            res.Add(logRefine);
-            return res.ToArray();
-        }
-
-        internal CsvSet CreateImportLog(List<RefineBase> refines, bool uploadToDataLake)
-        {
-            return ImportLog.CreateLog(ConnectionString, Container, ModuleName, "importLog", refines, uploadToDataLake);
+            return dataLake.GetCsvSet(Subdirectory, filename);
         }
     }
 }

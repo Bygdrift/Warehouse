@@ -2,29 +2,28 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <Version>0.2.1</Version>
+    <Version>0.3.0</Version>
     <Authors>kenboc</Authors>
     <Company>Bygdrift</Company>
-    <Description>Create modules that can push data to a data warehouse in Azure, and retrieve data in Power BI through CMD model.</Description>
+    <Description>Create modules that can push data to a data warehouse in Azure, and retrieve data in Power BI through CDM model.</Description>
     <Copyright>https://github.com/Bygdrift/Warehouse/blob/master/License.md</Copyright>
     <PackageProjectUrl>https://github.com/Bygdrift/Warehouse</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/Bygdrift/Bygdrift.Warehouse.git</RepositoryUrl>
-    <PackageTags>Datalake,CMD,Warehouse,Azure</PackageTags>
+    <PackageTags>Datalake,CDM,Warehouse,Azure</PackageTags>
     <RepositoryType>git</RepositoryType>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageId>Bygdrift.Warehouse</PackageId>
     <Product>Bygdrift.Warehouse</Product>
-    <PackageLicenseExpression>BSD-4-Clause</PackageLicenseExpression>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>Changed config so it's no longer an implicit part, but users has to put in every variable.</PackageReleaseNotes>
+    <PackageReleaseNotes>It is no longer fixed, what to call the folders in the data warehouse.</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Files.DataLake" Version="12.7.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
-    <PackageReference Include="NCrontab.Signed" Version="3.3.2" />
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />    
   </ItemGroup>
 

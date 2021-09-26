@@ -11,7 +11,7 @@ namespace Bygdrift.Warehouse.DataLake.CsvTools
     /// </summary>
     public class CsvSet
     {
-        internal static readonly Regex csvSplit = new Regex("(?:^|,)(\"(?:[^\"])*\"|[^,]*)", RegexOptions.Compiled);
+        //internal static readonly Regex csvSplit = new Regex("(?:^|,)(\"(?:[^\"])*\"|[^,]*)", RegexOptions.Compiled);
 
         public Dictionary<int, object> Headers { get; internal set; }
         public Dictionary<int, Type> ColTypes { get; internal set; }
@@ -109,22 +109,30 @@ namespace Bygdrift.Warehouse.DataLake.CsvTools
             return true;
         }
 
+        /// <param name="rows">Data like ["a,b","c,d"]</param>
         public bool AddRecords(string[] rows)
         {
             var res = true;
-            var r = 1;
-            foreach (var row in rows)
-            {
-                foreach (var item in CsvReader.SplitString(row))
+
+            for (int r = 0; r < rows.Length; r++)
+                foreach (var item in CsvReader.SplitString(rows[r]))
                     if (!AddRecord(item.Key, r, item.Value))
                         res = false;
-                r++;
-            }
 
             return res;
         }
 
-        public bool AddRecords(int row, Dictionary<int, object> columnRecords)
+        public bool AddRow(Dictionary<int, object> columnRecords)
+        {
+            var r = RowLimit.Max + 1;
+            foreach (var record in columnRecords)
+                if (!AddRecord(record.Key, r, record.Value))
+                    return false;
+
+            return true;
+        }
+
+        public bool AddRow(int row, Dictionary<int, object> columnRecords)
         {
             foreach (var record in columnRecords)
                 if (!AddRecord(record.Key, row, record.Value))
@@ -136,34 +144,8 @@ namespace Bygdrift.Warehouse.DataLake.CsvTools
         public void UpdateRecord(int col, int row, object value)
         {
             Records[(col, row)] = value;
-
             VerifyColType(col, value);
-
-            //if (col != 0)
-            //{
-            //    if (_colLimit == default) _colLimit = ColLimit;
-            //    if (_colLimit.Max < col)
-            //    {
-            //        _colLimit.Max = col;
-            //        g = col;
-            //    }
-            //}
-
-            //if (row != 0)
-            //{
-
-            //    if (_rowLimit == default) _rowLimit = RowLimit;
-            //    if (_rowLimit.Max < row) _rowLimit.Max = row;
-            //}
         }
-
-        //public void ChangeColType(object origName, Type newType)  //Denne er unødvendig
-        //{
-        //    var res = Headers.SingleOrDefault(o => o.Value == origName);
-        //    if (res.Value != null)
-        //        ColTypes[res.Key] = newType;
-        //}
-
 
         public void RenameHeader(object origName, object newName)
         {

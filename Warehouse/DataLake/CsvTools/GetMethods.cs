@@ -7,6 +7,34 @@ namespace Bygdrift.Warehouse.DataLake.CsvTools
 {
     public static class GetMethods
     {
+        /// <summary>
+        /// Builds a combination off all values from headers
+        /// </summary>
+        /// <returns>All data combinedd with a comma in keay, while value i row number</returns>
+        public static Dictionary<string, int> GetCompositeKeys(this CsvSet csv, params string[] headers)
+        {
+            if (csv == null)
+                return default;
+
+            var res = new Dictionary<string, int>();
+            var cols = new List<int>();
+            foreach (var header in headers)
+                if (csv.TryGetRecordCol(header, out int col))
+                    cols.Add(col);
+
+            var separator = headers.Length > 0 ? "," : "";
+            for (int r = csv.RowLimit.Min; r <= csv.RowLimit.Max; r++)
+            {
+                var rowVal = "";
+                foreach (var col in cols)
+                  rowVal += (csv.Records.TryGetValue((col, r), out object val) ? val.ToString() : "") + separator;
+
+                res.TryAdd(separator.Length > 0 ? rowVal.TrimEnd(',') : rowVal, r);
+            }
+
+            return res;
+        }
+
         public static Dictionary<int, object> GetRecordCol(this CsvSet csv, int col, bool includeNullValues = true)
         {
             var res = new Dictionary<int, object>();

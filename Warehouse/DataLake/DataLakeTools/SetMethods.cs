@@ -1,92 +1,77 @@
 ﻿using Bygdrift.Warehouse.DataLake.CsvTools;
-using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace Bygdrift.Warehouse.DataLake.DataLakeTools
 {
     public static class SetMethods
     {
-
-        //public string Module { get; }
-        //public string Table { get; }
-        //public IConfigurationRoot Config { get; }
-
-        //public SetMethods(IConfigurationRoot config, string module, string table)
+        //public static void SaveCsv(this DataLake dataLake, string table, string folderName, CsvSet csv)
         //{
-        //    Config = config;
-        //    Module = module;
-        //    Table = table;
-        //}
+        //    var filename = table + ".csv";
+        //    var subDirectory = folderName;
+        //    dataLake.SaveCsv(subDirectory, filename, csv);
+        //}½
 
-        //public static void DeleteCurrentDirectoryInDatalake(IConfigurationRoot config, string module)
-        //{
-        //    var dataLake = new DataLake(config, module, SubDirectory.Current.ToString());
-        //    dataLake.DeleteSubDirectory();
-        //}
-
-        public static DataLake SaveAsRaw(this DataLake dataLake, string table, Stream rawStream, string rawFileExtension, DateTime fileDate, bool savePerHour, bool onlyOverwriteIfFileIsNewer = true)
+        /// <param name="fileName">Såsom "Lots.csv"</param>
+        public static void SaveCsv(this DataLake dataLake, string basePath, string fileName, CsvSet csv)
         {
-            var filename = table + '.' + rawFileExtension;
-
-            //var dataLake = new DataLakeInit(Config, Module, CreateDatePath(SubDirectory.Raw, fileDate, savePerHour));
-            var subDirectory = DataLake.CreateDatePath(SubDirectory.Raw, fileDate, savePerHour);
-            var newestFileInFolder = dataLake.GetNewestFileInFolder(subDirectory, filename);
-            if (newestFileInFolder == null || !onlyOverwriteIfFileIsNewer || onlyOverwriteIfFileIsNewer && newestFileInFolder?.LastModified.UtcDateTime < fileDate)
-                dataLake.SaveStreamToDataLake(subDirectory, filename, rawStream);
-
-            return dataLake;
+            if (csv.Records.Count > 0)
+            {
+                var stream = csv.Write();
+                stream.Position = 0;
+                var fileClient = dataLake.GetFileClient(basePath, fileName);
+                fileClient.Upload(stream, true);
+            }
         }
 
-        public static DataLake SaveAsDecoded(this DataLake dataLake, string table, CsvSet csv, DateTime fileDate, bool savePerHour, bool onlyOverwriteIfFileIsNewer = true)
+        public static void SaveCsvToDateTimeFolder(this DataLake dataLake, string basePath, string table, CsvSet csv, DateTime fileDate, bool savePerHour, bool onlyOverwriteIfFileIsNewer = true)
         {
             var filename = table + ".csv";
-            //var dataLake = new DataLakeInit(Config, Module, CreateDatePath(SubDirectory.Decode, fileDate, savePerHour));
-            var subDirectory = DataLake.CreateDatePath(SubDirectory.Decode, fileDate, savePerHour);
-            var newestFileInFolder = dataLake.GetNewestFileInFolder(subDirectory, filename);
+            var newestFileInFolder = dataLake.GetNewestFileInFolder(basePath, filename);
             if (newestFileInFolder == null || !onlyOverwriteIfFileIsNewer || onlyOverwriteIfFileIsNewer && newestFileInFolder?.LastModified.UtcDateTime < fileDate)
-                dataLake.SaveCsvToDataLake(subDirectory, filename, csv);
-
-            return dataLake;
+                dataLake.SaveCsv(basePath, filename, csv);
         }
 
-        public static void DeleteSubDirectory(this DataLake dataLake, string subDirectory)
+        /// <param name="basePath">Such as "Raw". If null, then files are saved in the base directory</param>
+        /// <param name="fileName">Såsom "Lots.csv"</param>
+        public static void SaveStream(this DataLake dataLake, string basePath, string fileName, Stream stream)  //Inspiration: https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-directory-file-acl-dotnet
+        {
+            if (stream == null || stream.Length == 0)
+                return;
+
+            var fileClient = dataLake.GetFileClient(basePath, fileName);
+            stream.Position = 0;
+            fileClient.Upload(stream, true);
+        }
+
+        public static void SaveStreamToDateTimeFolder(this DataLake dataLake, string basePath, string table, Stream fileStream, string rawFileExtension, DateTime fileDate, bool savePerHour, bool onlyOverwriteIfFileIsNewer = true)
+        {
+            var filename = table + '.' + rawFileExtension;
+            var newestFileInFolder = dataLake.GetNewestFileInFolder(basePath, filename);
+            if (newestFileInFolder == null || !onlyOverwriteIfFileIsNewer || onlyOverwriteIfFileIsNewer && newestFileInFolder?.LastModified.UtcDateTime < fileDate)
+                dataLake.SaveStream(basePath, filename, fileStream);
+        }
+
+
+        /// <param name="basePath">Such as "Raw". If null, then files are saved in the base directory</param>
+        /// <param name="fileName">Såsom "Lots.csv"</param>
+        public static void SaveString(this DataLake dataLake, string basePath, string fileName, string data)  //Inspiration: https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-directory-file-acl-dotnet
+        {
+            using var stream = new MemoryStream(Encoding.Default.GetBytes(data));
+            dataLake.SaveStream(basePath, fileName, stream);
+        }
+
+        public static void DeleteSubDirectory(this DataLake dataLake, string basePath)
         {
             var fileSystem = dataLake.DataLakeServiceClient.GetFileSystemClient(dataLake.Container);
             if (fileSystem.Exists())
             {
-                var directory = fileSystem.GetDirectoryClient(string.Join('/', dataLake.Module, subDirectory));
+                var directory = fileSystem.GetDirectoryClient(string.Join('/', dataLake.Module, basePath));
                 if (directory.Exists())
                     directory.Delete();
             }
         }
-
-        //public void SaveAsCurrent(CsvSet csv, DateTime fileDate, bool onlyOverwriteIfFileIsNewer = true)
-        //{
-        //    var basePath = SubDirectory.Current.ToString();
-        //    var filename = Table + ".csv";
-        //    var dataLake = new DataLake(Config, Module, basePath);
-        //    var newestFileInFolder = dataLake.GetNewestFileInFolder(filename);
-        //    if (newestFileInFolder == null || !onlyOverwriteIfFileIsNewer || onlyOverwriteIfFileIsNewer && newestFileInFolder?.LastModified.UtcDateTime < fileDate)
-        //        dataLake.SaveCsvToDataLake(filename, csv);
-        //}
-
-        //public void SaveAsAccumulated(CsvSet csv)
-        //{
-        //    var basePath = SubDirectory.Accumulate.ToString();
-        //    var filename = Table + ".csv";
-        //    var dataLake = new DataLake(Config, Module, basePath);
-        //    dataLake.SaveCsvToDataLake(filename, csv);
-        //}
-
-    }
-
-    public enum SubDirectory
-    {
-        //Accumulate,
-        //Current,
-        Decode,
-        Raw,
     }
 }

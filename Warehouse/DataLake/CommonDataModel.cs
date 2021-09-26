@@ -7,6 +7,9 @@ using System.Runtime.CompilerServices;
 using System.Web;
 using Bygdrift.Warehouse.Modules;
 using Bygdrift.Warehouse.DataLake.DataLakeTools;
+using Bygdrift.Warehouse.DataLake.CsvTools;
+using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 [assembly: InternalsVisibleTo("Warehouse.Common.Tests")]
 namespace Bygdrift.Warehouse.DataLake
@@ -15,16 +18,25 @@ namespace Bygdrift.Warehouse.DataLake
     {
         private readonly DataLakeTools.DataLake dataLake;
 
-        public RefineBase[] Refines { get; }
+        public List<RefineBase> Refines { get; }
         public JObject Model { get; }
 
         /// <param name="baseDirectory">såsom "DaluxFM"</param>
         /// <param name="subDirectory">Såsom "current"</param>
         /// <param name="saveInCurrent">Saves model in data lake, in the folder "Curent"</param>
-        public CommonDataModel(string connectionString, string container, string module, RefineBase[] refines, bool uploadToDataLake)
+        public CommonDataModel(string connectionString, string container, string module, IEnumerable<RefineBase> refines, RefineBase logRefine, ILogger log, bool uploadToDataLake)
         {
             dataLake = new DataLakeTools.DataLake(connectionString, container, module);
-            Refines = refines;
+            Refines = refines != null ? refines.Where(o => o.CsvAddToCommonDataModel).ToList() : default;
+            Refines.Add(logRefine);
+
+            var duplicates = Refines?.GroupBy(o => o.TableName).Where(o => o.Count() > 1).Select(o => o.Key).ToArray();
+            if (duplicates?.Length > 0)
+            {
+                var items = string.Join(',', duplicates);
+                throw new Exception($"model.json cannot be build. There are more than one entity called '{items}'.");
+            }
+
             Model = CreateModel();
 
             if (uploadToDataLake)
@@ -34,12 +46,11 @@ namespace Bygdrift.Warehouse.DataLake
         internal void SaveToDataLake()
         {
             string dataAsString = JsonConvert.SerializeObject(Model, Formatting.Indented);
-            dataLake.SaveStringToDataLake(null, "model.json", dataAsString);
+            dataLake.SaveString(null, "model.json", dataAsString);
         }
 
         private JObject CreateModel()
         {
-            Validate();
             var res = new JObject
             {
                 new JProperty("$schema", "https://raw.githubusercontent.com/microsoft/CDM/master/docs/schema/modeljsonschema.json"),
@@ -47,15 +58,20 @@ namespace Bygdrift.Warehouse.DataLake
                 new JProperty("name", "OrdersProducts"),
                 new JProperty("description", "Model containing data for Order and Products."),
                 new JProperty("version", "1.0"),
-                //new JProperty("culture", "da-DK"),  //Excluded to follow internatinal rule of dot as seperator in decimal numbers and the use os ISO 8601 for dettime standards
+                //new JProperty("culture", "da-DK"),  //Do not use this: Excluded to follow internatinal rule of dot as seperator in decimal numbers and the use ISO 8601 as time standards
                 new JProperty("modifiedTime", DateTime.UtcNow.ToString("s"))
             };
 
-            var entities = new JArray();
-            foreach (var refine in Refines)
-                CreateEntity(ref entities, refine);
+            if (Refines != null)
+            {
+                Validate();
+                var entities = new JArray();
+                foreach (var refine in Refines)
+                    if (refine.CsvAddToCommonDataModel)
+                        CreateEntity(ref entities, refine.TableName, refine.CsvSet, refine.CsvBasePath);
 
-            res.Add(new JProperty("entities", entities));
+                res.Add(new JProperty("entities", entities));
+            }
 
             return res;
         }
@@ -73,21 +89,21 @@ namespace Bygdrift.Warehouse.DataLake
             }
         }
 
-        internal void CreateEntity(ref JArray entities, RefineBase refine)
+        internal void CreateEntity(ref JArray entities, string tableName, CsvSet csv, string path)
         {
             var entity = new JObject
             {
                 new JProperty("$type", "LocalEntity"),
-                new JProperty("name", refine.TableName)
+                new JProperty("name", tableName)
             };
 
             var attributes = new JArray();
-            foreach (var item in refine.CsvSet.Headers)
+            foreach (var item in csv.Headers)
             {
                 var attribute = new JObject
                 {
                     new JProperty("name", item.Value.ToString()),
-                    new JProperty("dataType", GetCommonDataModelType(refine.CsvSet.ColTypes[item.Key]))
+                    new JProperty("dataType", GetCommonDataModelType(csv.ColTypes[item.Key]))
                 };
                 attributes.Add(attribute);
             }
@@ -100,8 +116,8 @@ namespace Bygdrift.Warehouse.DataLake
                 new JProperty("refreshTime", DateTime.UtcNow.ToString("s"))
             };
 
-            var path = string.Join('/', dataLake.ServiceUri.ToString().Replace(".dfs.", ".blob.").TrimEnd('/'), dataLake.Container, dataLake.Module, refine.UploadAsDecodedPath);
-            var urlPath = HttpUtility.UrlPathEncode(path);
+            var fullPath = string.Join('/', dataLake.ServiceUri.ToString().Replace(".dfs.", ".blob.").TrimEnd('/'), dataLake.Container, dataLake.Module, path, tableName + "csv");
+            var urlPath = HttpUtility.UrlPathEncode(fullPath);
             partition.Add(new JProperty("location", urlPath));
             var fileFormatSettings = new JObject
             {

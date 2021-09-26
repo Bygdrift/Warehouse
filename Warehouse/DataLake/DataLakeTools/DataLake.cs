@@ -88,56 +88,7 @@ namespace Bygdrift.Warehouse.DataLake.DataLakeTools
             ServiceUri = new Uri($"{endpointProtocol}://{storageAccountName}.dfs.{endpointSuffix}/");
         }
 
-        /// <param name="fileName">Såsom "Lots.csv"</param>
-        internal void SaveCsvToDataLake(string subDirectory, string fileName, CsvSet csv)
-        {
-            if (csv.Records.Count > 0)
-            {
-                var stream = csv.Write();
-                stream.Position = 0;
-                var fileClient = this.GetFileClient(subDirectory, fileName);
-                fileClient.Upload(stream, true);
-            }
-        }
-
-        /// <param name="subDirectory">Such as "Raw". If null, then files are saved in the base directory</param>
-        /// <param name="fileName">Såsom "Lots.csv"</param>
-        internal void SaveStringToDataLake(string subDirectory, string fileName, string data)  //Inspiration: https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-directory-file-acl-dotnet
-        {
-            var fileClient = GetFileClient(subDirectory, fileName);
-
-            using var stream = new MemoryStream(Encoding.Default.GetBytes(data));
-            fileClient.Upload(stream, true);
-        }
-
-        /// <param name="subDirectory">Such as "Raw". If null, then files are saved in the base directory</param>
-        /// <param name="fileName">Såsom "Lots.csv"</param>
-        internal void SaveStreamToDataLake(string subDirectory, string fileName, Stream stream)  //Inspiration: https://docs.microsoft.com/en-us/azure/storage/blobs/data-lake-storage-directory-file-acl-dotnet
-        {
-            if (stream == null || stream.Length == 0)
-                return;
-
-            var fileClient = GetFileClient(subDirectory, fileName);
-            stream.Position = 0;
-            fileClient.Upload(stream, true);
-        }
-
-        /// <param name="subDirectory">Such as "Raw". If null, then files are saved in the base directory</param>
-        /// <param name="filename">Såsom "Lots.csv"</param>
-        internal DataLakeFileClient GetFileClient(string subDirectory, string filename)
-        {
-            var fileSystem = DataLakeServiceClient.GetFileSystemClient(Container);
-            if (!fileSystem.Exists())
-                fileSystem.Create();
-
-            var directory = fileSystem.GetDirectoryClient(subDirectory != null ? string.Join('/', Module, subDirectory) : Module);
-            if (!directory.Exists())
-                directory.Create();
-
-            return directory.GetFileClient(filename);
-        }
-
-        public static string CreateDatePath(SubDirectory subDirectory, DateTime fileDate, bool savePerHour)
+        public static string CreateDatePath(string subDirectory, DateTime fileDate, bool savePerHour)
         {
             var pathParts = new List<string> { subDirectory.ToString(), fileDate.ToString("yyyy"), fileDate.ToString("MM"), fileDate.ToString("dd") };
             if (savePerHour)

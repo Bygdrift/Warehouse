@@ -13,33 +13,33 @@ namespace Bygdrift.Warehouse.DataLake
     /// </summary>
     class ImportLog
     {
-        public static CsvSet CreateLog(string connectionString, string container, string module, string logTableName, List<RefineBase> refines, bool uploadToDataLake)
+        public static RefineBase CreateLog(string connectionString, string container, string module, string logTableName, IEnumerable<RefineBase> refines, bool uploadToDataLake)
         {
-            var csv = new CsvSet();
-            csv.AddHeaders("Table, Uploaded, Headers, ErrorsCount, Errors");
+            var res = new RefineBase(null, null, logTableName, true, FolderStructure.Path);
+            res.CsvSet.AddHeaders("Table, Uploaded, Headers, ErrorsCount, Errors");
 
             var r = 0;
             foreach (var item in refines)
                 if (item.TableName != logTableName)
                 {
-                    csv.AddRecord(0, r, item.TableName);
-                    csv.AddRecord(1, r, item.UploadFileDate);
-                    csv.AddRecord(2, r, item.CsvSet.Headers.Count.ToString());
-                    csv.AddRecord(3, r, item.Errors != null ? item.Errors.Count() : 0);
-                    csv.AddRecord(4, r, ErrorsAsString(item.Errors));
+                    res.CsvSet.AddRecord(0, r, item.TableName);
+                    res.CsvSet.AddRecord(1, r, item.CsvFileDateTime.ToUniversalTime());
+                    res.CsvSet.AddRecord(2, r, item.CsvSet.Headers.Count.ToString());
+                    res.CsvSet.AddRecord(3, r, item.Errors != null ? item.Errors.Count() : 0);
+                    res.CsvSet.AddRecord(4, r, ErrorsAsString(item.Errors));
                     r++;
                 }
 
             if(uploadToDataLake)
-                Save(connectionString, container, module, csv, DateTime.UtcNow);
+                Save(connectionString, container, module, logTableName, res.CsvSet, DateTime.UtcNow);
 
-            return csv;
+            return res;
         }
 
-        private static void Save(string connectionString, string container, string module, CsvSet csv, DateTime utcNow)
+        private static void Save(string connectionString, string container, string module, string logTableName, CsvSet csv, DateTime utcNow)
         {
             var dataLake = new DataLakeTools.DataLake(connectionString, container, module);
-            dataLake.SaveCsvToDataLake(null, "ImportLog.csv", csv);
+            dataLake.SaveCsv(null, logTableName + ".csv", csv);
         }
 
         private static string ErrorsAsString(List<string> errors)

@@ -6,8 +6,8 @@ namespace Bygdrift.Warehouse.Modules
 {
     public class ImportResult
     {
-        public JObject CMDModel { get; set; }
-        public CsvSet ImportLog { get; set; }
+        public JObject CommonDataModel { get; set; }
+        public RefineBase ImportLog { get; set; }
         public List<RefineBase> Refines { get; set; }
 
         public ImportResult()
