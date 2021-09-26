@@ -55,7 +55,7 @@ namespace Bygdrift.Warehouse.DataLakes
 
             var fileClient = fileSystem.GetFileClient(item.Name);
             using var stream = fileClient.OpenRead();
-            return new CsvReader(stream).Csv;
+            return new CsvRead(stream).Csv;
         }
 
         public static Csv GetCsv(this DataLake dataLake, string subDirectory, string filename)
@@ -71,7 +71,7 @@ namespace Bygdrift.Warehouse.DataLakes
                 return null;
 
             using Stream stream = fileClient.OpenRead();
-            return new CsvReader(stream).Csv;
+            return new CsvRead(stream).Csv;
         }
 
         /// <param name="subDirectory">Such as "Raw". If null, then files are saved in the base directory</param>

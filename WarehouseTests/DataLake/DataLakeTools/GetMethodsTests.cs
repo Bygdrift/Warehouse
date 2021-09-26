@@ -1,14 +1,18 @@
 using Bygdrift.Warehouse.DataLakes;
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
 using System.Linq;
-using WarehouseTests.Helpers;
 
 namespace WarehouseTests
 {
     [TestClass]
-    public class GetMethodsTests : GenericTests
+    public class GetMethodsTests
     {
+        /// <summary>Get data from appSettings like Config["test"]</summary>
+        public static IConfigurationRoot Config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("appsettings.local.json").Build();
+
         [TestMethod]
         public void TestMethod1()
         {
