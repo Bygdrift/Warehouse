@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Bygdrift.Warehouse.DataLake.CsvTools;
+using Bygdrift.CsvTools;
+using Bygdrift.Warehouse.DataLakes;
 using Microsoft.Extensions.Logging;
 
 namespace Bygdrift.Warehouse.Modules
@@ -11,7 +12,7 @@ namespace Bygdrift.Warehouse.Modules
         public List<string> Errors { get; internal set; }
         public ImportBase Importer { get; }
         public string TableName { get; }
-        public CsvSet CsvSet { get; set; }
+        public Csv Csv { get; set; }
         public DateTime CsvFileDateTime { get; }
         public bool CsvAddToCommonDataModel { get; }
         public FolderStructure CsvFolderStructure { get; }
@@ -29,11 +30,11 @@ namespace Bygdrift.Warehouse.Modules
         {
             Importer = importer;
             TableName = tableName;
-            CsvSet = new CsvSet();
+            Csv = new Csv();
             CsvAddToCommonDataModel = addToCommonDataModel;
             CsvFolderStructure = folderStructure;
             CsvFileDateTime = fileDateTime == null ? DateTime.UtcNow : ((DateTime)fileDateTime).ToUniversalTime();
-            CsvBasePath = folderStructure != FolderStructure.Path ? string.Join('/', DataLake.DataLakeTools.DataLake.CreateDatePath(basePath, CsvFileDateTime, CsvFolderStructure == FolderStructure.DateTimePath)) : basePath;
+            CsvBasePath = folderStructure != FolderStructure.Path ? string.Join('/', DataLake.CreateDatePath(basePath, CsvFileDateTime, CsvFolderStructure == FolderStructure.DateTimePath)) : basePath;
         }
 
         public void AddError(string error)
@@ -71,7 +72,7 @@ namespace Bygdrift.Warehouse.Modules
         {
             FileStream = stream;
             FilestreamDateTime = fileDateTime ?? DateTime.UtcNow;
-            FileStreamBasePath = folderStructure != FolderStructure.Path ? string.Join('/', DataLake.DataLakeTools.DataLake.CreateDatePath(basePath, FilestreamDateTime, folderStructure == FolderStructure.DateTimePath)) : basePath;
+            FileStreamBasePath = folderStructure != FolderStructure.Path ? string.Join('/', DataLake.CreateDatePath(basePath, FilestreamDateTime, folderStructure == FolderStructure.DateTimePath)) : basePath;
             FileStreamExtension = fileExtension;
             FileStreamFolderStructure = folderStructure;
         }

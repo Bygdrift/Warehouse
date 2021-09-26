@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
-using Bygdrift.Warehouse.DataLake;
-using Bygdrift.Warehouse.DataLake.CsvTools;
-using Bygdrift.Warehouse.DataLake.DataLakeTools;
+using Bygdrift.CsvTools;
+using Bygdrift.Warehouse.DataLakes;
 
 namespace Bygdrift.Warehouse.Modules
 {
@@ -15,14 +13,14 @@ namespace Bygdrift.Warehouse.Modules
         public static string ModuleName { get; set; }
         public ILogger Log { get; }
 
-        private DataLake.DataLakeTools.DataLake _dataLake;
+        private DataLake _dataLake;
 
-        public DataLake.DataLakeTools.DataLake DataLake
+        public DataLake DataLake
         {
             get
             {
 
-                _dataLake ??= new DataLake.DataLakeTools.DataLake(ConnectionString, Container, ModuleName);
+                _dataLake ??= new DataLake(ConnectionString, Container, ModuleName);
                 return _dataLake;
             }
         }
@@ -66,18 +64,18 @@ namespace Bygdrift.Warehouse.Modules
                     else
                         DataLake.SaveStreamToDateTimeFolder(refine.FileStreamBasePath, refine.TableName, refine.FileStream, refine.FileStreamExtension, refine.FilestreamDateTime, refine.FileStreamFolderStructure == FolderStructure.DateTimePath);
 
-                if (refine.CsvSet.Headers.Any())
+                if (refine.Csv.Headers.Any())
                     if (refine.CsvFolderStructure == FolderStructure.Path)
-                        DataLake.SaveCsv(refine.CsvBasePath, refine.TableName + ".csv", refine.CsvSet);
+                        DataLake.SaveCsv(refine.CsvBasePath, refine.TableName + ".csv", refine.Csv);
                     else
-                        DataLake.SaveCsvToDateTimeFolder(refine.CsvBasePath, refine.TableName, refine.CsvSet, refine.CsvFileDateTime, refine.CsvFolderStructure == FolderStructure.DateTimePath);
+                        DataLake.SaveCsvToDateTimeFolder(refine.CsvBasePath, refine.TableName, refine.Csv, refine.CsvFileDateTime, refine.CsvFolderStructure == FolderStructure.DateTimePath);
             }
         }
 
-        public CsvSet GetCsvSetFromDataLake(string Subdirectory, string filename)
+        public Csv GetCsvFromDataLake(string Subdirectory, string filename)
         {
-            var dataLake = new DataLake.DataLakeTools.DataLake(ConnectionString, Container, ModuleName);
-            return dataLake.GetCsvSet(Subdirectory, filename);
+            var dataLake = new DataLake(ConnectionString, Container, ModuleName);
+            return dataLake.GetCsv(Subdirectory, filename);
         }
     }
 }
