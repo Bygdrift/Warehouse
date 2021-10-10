@@ -13,4 +13,4 @@ Modules that uses this nuget library:
 *   Get data from Eloverblik - a Danish platform that shows power consumption: [Warehouse.Modules.Eloverblik](https://github.com/hillerod/Warehouse.Modules.Eloverblik)
 *   Get data from Outlook Exchange on room bookings: [Warehouse.Modules.OutlookCalendar](https://github.com/hillerod/Warehouse.Modules.OutlookCalendar)
 
-[The license](LICENSE.txt)
+[The license](LICENSE.md)

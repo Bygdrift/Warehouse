@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <!--Notice to Bygdrift developer: Create nuget package: dotnet pack-->
     <TargetFramework>net5.0</TargetFramework>
-    <Version>0.3.5</Version>
+    <Version>0.3.6</Version>
     <Authors>kenboc</Authors>
     <Company>Bygdrift</Company>
-    <Description>Create modules that can push data to a data warehouse in Azure, and retrieve data in Power BI through CMD model.</Description>
+    <Description>Create modules that can push data to a data warehouse in Azure, and retrieve data in Power BI through CDM model.</Description>
     <Copyright>https://github.com/Bygdrift/Warehouse/blob/master/License.md</Copyright>
     <PackageProjectUrl>https://github.com/Bygdrift/Warehouse</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
@@ -24,7 +25,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Files.DataLake" Version="12.7.0" />
-    <PackageReference Include="Bygdrift.CsvTools" Version="0.1.2" />
+    <PackageReference Include="Bygdrift.CsvTools" Version="0.1.3" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />    
   </ItemGroup>
