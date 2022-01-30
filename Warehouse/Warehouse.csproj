@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<!--For testing, first installe Azure environment as described at: https://github.com/Bygdrift/Warehouse. Then add Azure App Confic connectionstring to the project 'ModuleTests' as a User Secret like: {"ConnectionStrings:AppConfig": "the connectionstring to app config"} -->
+	<!--Notice to Bygdrift developer: Create nuget package: dotnet pack-->
+	
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Version>0.6.1</Version>
+		<Authors>kenboc</Authors>
+		<Company>Bygdrift</Company>
+		<Description>Create Azure App functions to fetch data from an unspecified data source, wash data and ingest to a data lake and a database in Azure. This nuget package handles communication with data lake and database.</Description>
+		<Copyright>https://github.com/Bygdrift/Warehouse/blob/master/License.md</Copyright>
+		<PackageProjectUrl>https://github.com/Bygdrift/Warehouse</PackageProjectUrl>
+		<PackageIcon>icon.png</PackageIcon>
+		<RepositoryUrl>https://github.com/Bygdrift/Warehouse.git</RepositoryUrl>
+		<PackageTags>Datalake,Database,Warehouse,Azure</PackageTags>
+		<RepositoryType>git</RepositoryType>
+		<NeutralLanguage>en</NeutralLanguage>
+		<PackageId>Bygdrift.Warehouse</PackageId>
+		<Product>Bygdrift.Warehouse</Product>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<AssemblyName>Bygdrift.Warehouse</AssemblyName>
+		<RootNamespace>Bygdrift.Warehouse</RootNamespace>
+		<PackageReleaseNotes>Breaking changes on Csv: It now uses R1C1 notation and not C0R0.</PackageReleaseNotes>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<Compile Include="..\..\CsvTools\CsvTools\Csv.cs" Link="CsvTools\Csv.cs" />
+		<Compile Include="..\..\CsvTools\CsvTools\CsvExport.cs" Link="CsvTools\CsvExport.cs" />
+		<Compile Include="..\..\CsvTools\CsvTools\CsvFilter.cs" Link="CsvTools\CsvFilter.cs" />
+		<Compile Include="..\..\CsvTools\CsvTools\CsvGet.cs" Link="CsvTools\CsvGet.cs" />
+		<Compile Include="..\..\CsvTools\CsvTools\CsvImport.cs" Link="CsvTools\CsvImport.cs" />
+		<Compile Include="..\..\CsvTools\CsvTools\CsvSet.cs" Link="CsvTools\CsvSet.cs" />
+		<Compile Include="..\..\CsvTools\CsvTools\CsvUpdate.cs" Link="CsvTools\CsvUpdate.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.2.0" />
+		<PackageReference Include="Azure.Storage.Files.DataLake" Version="12.8.0" />
+		<PackageReference Include="ClosedXML" Version="0.95.4" />
+		<PackageReference Include="ExcelDataReader" Version="3.6.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+		<PackageReference Include="RepoDb.SqlServer.BulkOperations" Version="1.1.5" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="icon.png" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="CsvTools\" />
+	</ItemGroup>
+
+</Project>

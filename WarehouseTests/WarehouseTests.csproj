@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\CsvTools\CsvToolsTests\CsvExportTests.cs" Link="CsvTools\CsvExportTests.cs" />
+    <Compile Include="..\..\CsvTools\CsvToolsTests\CsvGetTests.cs" Link="CsvTools\CsvGetTests.cs" />
+    <Compile Include="..\..\CsvTools\CsvToolsTests\CsvImportTests.cs" Link="CsvTools\CsvImportTests.cs" />
+    <Compile Include="..\..\CsvTools\CsvToolsTests\CsvSetTests.cs" Link="CsvTools\CsvSetTests.cs" />
+    <Compile Include="..\..\CsvTools\CsvToolsTests\CsvTests.cs" Link="CsvTools\CsvTests.cs" />
+    <Compile Include="..\..\CsvTools\CsvToolsTests\FilterMethodTests.cs" Link="CsvTools\FilterMethodTests.cs" />
+    <Compile Include="..\..\CsvTools\CsvToolsTests\UpdateMethodTests.cs" Link="CsvTools\UpdateMethodTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.8">
+      <TreatAsUsed>true</TreatAsUsed>
+    </PackageReference>
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="CsvTools\" />
+    <Folder Include="Files\Csv\Export\" />
+    <Folder Include="Files\Excel\Export\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Warehouse\Warehouse.csproj" />
+  </ItemGroup>
+
+</Project>

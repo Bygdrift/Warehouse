@@ -1,0 +1,219 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.1124.51302",
+      "templateHash": "16755036207123764791"
+    }
+  },
+  "parameters": {
+    "mssqlServerFirewallClientIpAddress": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Gets added to SQL server firewall if not null"
+      }
+    },
+    "environmentType": {
+      "type": "string",
+      "defaultValue": "Test",
+      "metadata": {
+        "description": "Defines the SKU on the storage and SQL server, where Test is the cheapest but slowest installation"
+      },
+      "allowedValues": [
+        "Test",
+        "Prod"
+      ]
+    },
+    "mssqlServerName": {
+      "type": "string",
+      "defaultValue": "[format('SqlServer{0}-{1}', parameters('environmentType'), uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "The name of the SQL server. Standard name will be \"SqlServer-Test/Prod-3xahh4xyxllq\" (suffix is resourcegroups id). You can change the prefilled string to something easier to read like WarehouseServer, but the name, has to be globaly unique."
+      }
+    },
+    "mssqlServerUser": {
+      "type": "string",
+      "metadata": {
+        "description": "The username to the SQL server."
+      }
+    },
+    "mssqlServerPassword": {
+      "type": "secureString",
+      "metadata": {
+        "description": "The password to the SQL server."
+      }
+    },
+    "mssqlDatabaseName": {
+      "type": "string",
+      "defaultValue": "Warehouse",
+      "metadata": {
+        "description": "The name of the SQL database. You can change the prefilled name"
+      }
+    }
+  },
+  "variables": {
+    "location": "[resourceGroup().location]",
+    "storageSkuName": "[if(equals(parameters('environmentType'), 'Prod'), 'Standard_GRS', 'Standard_LRS')]",
+    "databaseSku": "[if(equals(parameters('environmentType'), 'Prod'), createObject('name', 'Standard', 'tier', 'Standard'), createObject('name', 'Basic', 'tier', 'Basic'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "name": "[format('keyvault-{0}', uniqueString(resourceGroup().id))]",
+      "location": "[variables('location')]",
+      "properties": {
+        "enabledForTemplateDeployment": true,
+        "tenantId": "[tenant().tenantId]",
+        "accessPolicies": [],
+        "sku": {
+          "name": "standard",
+          "family": "A"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('appstorage{0}', uniqueString(resourceGroup().id))]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "[variables('storageSkuName')]"
+      },
+      "kind": "Storage"
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2019-09-01",
+      "name": "[format('{0}/{1}', format('keyvault-{0}', uniqueString(resourceGroup().id)), 'Secret--AppStorageConnectionString')]",
+      "properties": {
+        "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('appstorage{0}', uniqueString(resourceGroup().id)), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('appstorage{0}', uniqueString(resourceGroup().id))), '2019-06-01').keys[0].value)]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', format('appstorage{0}', uniqueString(resourceGroup().id)))]",
+        "[resourceId('Microsoft.KeyVault/vaults', format('keyvault-{0}', uniqueString(resourceGroup().id)))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('datalake{0}', uniqueString(resourceGroup().id))]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "[variables('storageSkuName')]"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "isHnsEnabled": true,
+        "accessTier": "Hot"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2019-09-01",
+      "name": "[format('{0}/{1}', format('keyvault-{0}', uniqueString(resourceGroup().id)), 'Secret--DataLakeConnectionString')]",
+      "properties": {
+        "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('datalake{0}', uniqueString(resourceGroup().id)), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('datalake{0}', uniqueString(resourceGroup().id))), '2019-06-01').keys[0].value)]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', format('datalake{0}', uniqueString(resourceGroup().id)))]",
+        "[resourceId('Microsoft.KeyVault/vaults', format('keyvault-{0}', uniqueString(resourceGroup().id)))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02-preview",
+      "name": "applicationInsights",
+      "location": "[variables('location')]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web",
+        "publicNetworkAccessForIngestion": "Enabled",
+        "publicNetworkAccessForQuery": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[parameters('mssqlServerName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "administratorLogin": "[parameters('mssqlServerUser')]",
+        "administratorLoginPassword": "[parameters('mssqlServerPassword')]",
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "condition": "[not(empty(parameters('mssqlServerFirewallClientIpAddress')))]",
+      "type": "Microsoft.Sql/servers/firewallRules",
+      "apiVersion": "2015-05-01-preview",
+      "name": "[format('{0}/{1}', parameters('mssqlServerName'), 'ClientIP')]",
+      "properties": {
+        "startIpAddress": "[parameters('mssqlServerFirewallClientIpAddress')]",
+        "endIpAddress": "[parameters('mssqlServerFirewallClientIpAddress')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('mssqlServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Sql/servers/firewallRules",
+      "apiVersion": "2015-05-01-preview",
+      "name": "[format('{0}/{1}', parameters('mssqlServerName'), 'AllowAllWindowsAzureIps')]",
+      "properties": {
+        "endIpAddress": "0.0.0.0",
+        "startIpAddress": "0.0.0.0"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('mssqlServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2020-11-01-preview",
+      "name": "[format('{0}/{1}', parameters('mssqlServerName'), parameters('mssqlDatabaseName'))]",
+      "location": "[variables('location')]",
+      "sku": "[variables('databaseSku')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', parameters('mssqlServerName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2019-09-01",
+      "name": "[format('{0}/{1}', format('keyvault-{0}', uniqueString(resourceGroup().id)), 'Secret--MssqlConnectionString')]",
+      "properties": {
+        "value": "[format('Server=tcp:{0},1433;Initial Catalog={1};Persist Security Info=False;User ID={2};Password={3};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;', reference(resourceId('Microsoft.Sql/servers', parameters('mssqlServerName'))).fullyQualifiedDomainName, parameters('mssqlDatabaseName'), parameters('mssqlServerUser'), parameters('mssqlServerPassword'))]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', format('keyvault-{0}', uniqueString(resourceGroup().id)))]",
+        "[resourceId('Microsoft.Sql/servers', parameters('mssqlServerName'))]"
+      ]
+    }
+  ],
+  "outputs": {
+    "dataLakeName": {
+      "type": "string",
+      "value": "[format('datalake{0}', uniqueString(resourceGroup().id))]"
+    },
+    "appStorageName": {
+      "type": "string",
+      "value": "[format('appstorage{0}', uniqueString(resourceGroup().id))]"
+    },
+    "appInsightsName": {
+      "type": "string",
+      "value": "applicationInsights"
+    },
+    "sqlServerName": {
+      "type": "string",
+      "value": "[parameters('mssqlServerName')]"
+    },
+    "sqlDatabaseName": {
+      "type": "string",
+      "value": "[parameters('mssqlDatabaseName')]"
+    }
+  }
+}
