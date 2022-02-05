@@ -8,12 +8,7 @@ If you don't have an Azure subscription, create a free [account](https://azure.m
 
 ## Videos
 
-This video describes how to setup the basic Bygdrift Warehouse (in Danish):
-<div align="left">
-      <a href="https://www.youtube.com/watch?v=6aR39glybhg">
-         <img src="https://img.youtube.com/vi/6aR39glybhg/0.jpg">
-      </a>
-</div>
+2022-01-28: [How to setup the basic Bygdrift Warehouse (in Danish)](https://www.youtube.com/watch?v=6aR39glybhg)
 
 ## Setup the Warehouse environment with the portal:
 

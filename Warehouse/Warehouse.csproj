@@ -1,10 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<!--For testing, first installe Azure environment as described at: https://github.com/Bygdrift/Warehouse. Then add Azure App Confic connectionstring to the project 'ModuleTests' as a User Secret like: {"ConnectionStrings:AppConfig": "the connectionstring to app config"} -->
 	<!--Notice to Bygdrift developer: Create nuget package: dotnet pack-->
 	
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<Version>0.6.1</Version>
+		<Version>0.6.2</Version>
 		<Authors>kenboc</Authors>
 		<Company>Bygdrift</Company>
 		<Description>Create Azure App functions to fetch data from an unspecified data source, wash data and ingest to a data lake and a database in Azure. This nuget package handles communication with data lake and database.</Description>
@@ -21,7 +20,10 @@
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<AssemblyName>Bygdrift.Warehouse</AssemblyName>
 		<RootNamespace>Bygdrift.Warehouse</RootNamespace>
-		<PackageReleaseNotes>Breaking changes on Csv: It now uses R1C1 notation and not C0R0.</PackageReleaseNotes>
+		<PackageReleaseNotes>
+			Has removed the prefix 'Setting--' from all app settings. If you are updating from 0.6.1, then read more on https://github.com/Bygdrift/Warehouse under Updates.
+			Has added ability to export csv as Excel to data lake as appBase.DataLake.SaveExcelAsync().
+		</PackageReleaseNotes>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>

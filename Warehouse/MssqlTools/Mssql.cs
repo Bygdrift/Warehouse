@@ -47,7 +47,14 @@ namespace Bygdrift.MssqlTools
                     _connection = new SqlConnection(builder.ToString());
                 }
                 if (_connection.State == System.Data.ConnectionState.Closed)
-                    _connection.Open();
+                    try
+                    {
+                        _connection.Open();
+                    }
+                    catch (Exception e)
+                    {
+                        throw new Exception("Could not login to MSSql database.", e);
+                    }
 
                 return _connection;
             }

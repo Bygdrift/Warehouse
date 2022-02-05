@@ -14,7 +14,7 @@ namespace Bygdrift.DataLakeTools
         /// </summary>
         /// <param name="basePath">If empty, there will not be created a directory.</param>
         /// <param name="folderStructure"></param>
-        public async Task CreateDirectoryAsync(string basePath, FolderStructure folderStructure = FolderStructure.Path)
+        public async Task CreateDirectoryAsync(string basePath, FolderStructure folderStructure)
         {
             if (folderStructure == FolderStructure.DatePath)
                 basePath = CreateDatePath(basePath, false);
@@ -35,7 +35,7 @@ namespace Bygdrift.DataLakeTools
         /// <param name="csv"></param>
         /// <param name="folderStructure">What structure data should be saved into</param>
         /// <returns>The filePath</returns>
-        public async Task<string> SaveCsvAsync(Csv csv, string basePath, string fileName, FolderStructure folderStructure = FolderStructure.Path)
+        public async Task<string> SaveCsvAsync(Csv csv, string basePath, string fileName, FolderStructure folderStructure)
         {
             if (csv != null && csv != default)
             {
@@ -47,14 +47,53 @@ namespace Bygdrift.DataLakeTools
         }
 
         /// <summary>
+        /// Saves a csv to dataLake
+        /// </summary>
+        /// <param name="basePath">Such as "Raw". If null, then files are saved in the base directory</param>
+        /// <param name="fileName">Such as "Lots.xlsx"</param>
+        /// <param name="csv"></param>
+        /// <param name="folderStructure">What structure data should be saved into</param>
+        /// <param name="paneName">The name of the worksheet</param>
+        /// <param name="tableName">The name of the table inside Excel. If null, no fancy table will be added</param>
+        /// <returns>The filePath</returns>
+        public async Task<string> SaveExcelAsync(Csv csv, string basePath, string fileName, FolderStructure folderStructure, string paneName, string tableName = null)
+        {
+            if (csv != null && csv != default)
+            {
+                using var stream = csv.ToExcelStream(paneName, tableName);
+                if (stream.Length > 0)
+                    return await SaveStreamAsync(stream, basePath, fileName, folderStructure);
+            }
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Deserializes an object to json and saves it to the dataLake
+        /// </summary>
+        /// <param name="basePath">Such as "Raw". If null, then files are saved in the base directory</param>
+        /// <param name="fileName">Such as "Lots.json"</param>
+        /// <param name="data">The object to be saved</param>
+        /// <param name="folderStructure">What structure data should be saved into</param>
+        /// <returns>A file path to where the file is saved</returns>
+        public async Task<string> SaveObjectAsync(object data, string basePath, string fileName, FolderStructure folderStructure)
+        {
+            if (data is null)
+                return null;
+
+            var json = JsonConvert.SerializeObject(data);
+            using var stream = new MemoryStream(Encoding.Default.GetBytes(json));
+            return await SaveStreamAsync(stream, basePath, fileName, folderStructure);
+        }
+
+        /// <summary>
         /// Saves a stream to the datalake in a folder format like: basePath/2021/11/21/fileName.rawFileExtension
         /// </summary>
         /// <param name="basePath">Such as "Raw". If null, then files are saved in the base directory</param>
-        /// <param name="fileName">Såsom "Lots.csv"</param>
+        /// <param name="fileName">Such as "Lots.txt"</param>
         /// <param name="stream"></param>
         /// <param name="folderStructure">What structure data should be saved into</param>
         /// <returns>A file path to where the file is saved</returns>
-        public async Task<string> SaveStreamAsync(Stream stream, string basePath, string fileName, FolderStructure folderStructure = FolderStructure.Path)
+        public async Task<string> SaveStreamAsync(Stream stream, string basePath, string fileName, FolderStructure folderStructure)
         {
             if (stream == null || stream.Length == 0)
                 return default;
@@ -93,7 +132,7 @@ namespace Bygdrift.DataLakeTools
         /// <param name="data">The string to bae saved</param>
         /// <param name="folderStructure">What structure data should be saved into</param>
         /// <returns>A file path to where the file is saved</returns>
-        public async Task<string> SaveStringAsync(string data, string basePath, string fileName, FolderStructure folderStructure = FolderStructure.Path)
+        public async Task<string> SaveStringAsync(string data, string basePath, string fileName, FolderStructure folderStructure)
         {
             if (string.IsNullOrEmpty(data))
                 return null;
@@ -102,22 +141,6 @@ namespace Bygdrift.DataLakeTools
             return await SaveStreamAsync(stream, basePath, fileName, folderStructure);
         }
 
-        /// <summary>
-        /// Deserializes an object to json and saves it to the dataLake
-        /// </summary>
-        /// <param name="basePath">Such as "Raw". If null, then files are saved in the base directory</param>
-        /// <param name="fileName">Such as "Lots.csv"</param>
-        /// <param name="data">The object to be saved</param>
-        /// <param name="folderStructure">What structure data should be saved into</param>
-        /// <returns>A file path to where the file is saved</returns>
-        public async Task<string> SaveObjectAsync(object data, string basePath, string fileName, FolderStructure folderStructure = FolderStructure.Path)
-        {
-            if (data is null)
-                return null;
-
-            var json = JsonConvert.SerializeObject(data);
-            using var stream = new MemoryStream(Encoding.Default.GetBytes(json));
-            return await SaveStreamAsync(stream, basePath, fileName, folderStructure);
-        }
+       
     }
 }

@@ -43,23 +43,35 @@ namespace Bygdrift.Warehouse.Helpers.Attributes
 
         internal void GetData<TSettings>(AppBase app, PropertyInfo prop, TSettings settings)
         {
-            var value = app.Config.GetValue<object>("setting--" + PropertyName);
+            var value = app.Config.GetValue<object>(PropertyName);
+
             if (value == null)
             {
-                if (NotSet == NotSet.ThrowError)
-                    throw new Exception($"App setting 'settings--{prop.Name}' has not been set and is vital to continue. {ErrorMessage}");
+                //This warning can be removed June 2022:
+                var settingValue = app.Config.GetValue<object>("Setting--" + PropertyName);
+                if (settingValue != null)
+                {
+                    app.Log.LogError($"With the new update of Bygdrift Warehouse, you have to remove all prefixes of 'Setting--' in the current modules cofiguration'. The module will continue to function until June 2022, where this error will stop the execution.");
+                    if (CsvTools.Csv.RecordToType(prop.PropertyType, settingValue, out object res))
+                        prop.SetValue(settings, res);
+                }
+                else
+                {
+                    if (NotSet == NotSet.ThrowError)
+                        throw new Exception($"App setting '{prop.Name}' has not been set and is vital to continue. {ErrorMessage}");
 
-                if (NotSet == NotSet.ShowLogError)
-                    app.Log.LogError($"App setting 'settings--{prop.Name}' has not been set. {ErrorMessage}");
+                    if (NotSet == NotSet.ShowLogError)
+                        app.Log.LogError($"App setting '{prop.Name}' has not been set. {ErrorMessage}");
 
-                if (NotSet == NotSet.ShowLogInfo)
-                    app.Log.LogInformation($"App setting 'settings--{prop.Name}' has not been set. {ErrorMessage}");
+                    if (NotSet == NotSet.ShowLogInfo)
+                        app.Log.LogInformation($"App setting '{prop.Name}' has not been set. {ErrorMessage}");
 
-                if (NotSet == NotSet.ShowLogWarning)
-                    app.Log.LogWarning($"App setting 'settings--{prop.Name}' has not been set. {ErrorMessage}");
+                    if (NotSet == NotSet.ShowLogWarning)
+                        app.Log.LogWarning($"App setting '{prop.Name}' has not been set. {ErrorMessage}");
 
-                if (Default != null && CsvTools.Csv.RecordToType(prop.PropertyType, Default, out object res))
-                    prop.SetValue(settings, res);
+                    if (Default != null && CsvTools.Csv.RecordToType(prop.PropertyType, Default, out object res))
+                        prop.SetValue(settings, res);
+                }
             }
             else if (CsvTools.Csv.RecordToType(prop.PropertyType, value, out object res))
                 prop.SetValue(settings, res);

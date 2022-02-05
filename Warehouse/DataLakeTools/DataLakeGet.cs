@@ -84,30 +84,47 @@ namespace Bygdrift.DataLakeTools
             return true;
         }
 
-        private static Csv GetCsv(DataLakeFileSystemClient fileSystem, PathItem pathItem, string tableName, DateTime from, DateTime to, DateTime date)
+        private static List<Csv> GetFolderCsvs(DataLakeFileSystemClient fileSystem, PathItem pathItem, DateTime from, DateTime to, DateTime date, bool onlyTakeFirstFileInEachFolder)
         {
-            var item = fileSystem.GetPaths(pathItem.Name).SingleOrDefault(o =>
-                o.IsDirectory == false &&
-                Path.GetExtension(o.Name).Equals(".csv", StringComparison.InvariantCultureIgnoreCase) &&
-                Path.GetFileNameWithoutExtension(o.Name).Equals(tableName, StringComparison.InvariantCultureIgnoreCase));
+            var csvs = new List<Csv>();
+            var paths = fileSystem.GetPaths(pathItem.Name);
 
-            if (item == null || from > date || date > to)
+            var items = paths.Where(o => o.IsDirectory == false && Path.GetExtension(o.Name).Equals(".csv", StringComparison.InvariantCultureIgnoreCase));
+
+            if (!items.Any())
                 return null;
 
-            var fileClient = fileSystem.GetFileClient(item.Name);
-            using var stream = fileClient.OpenRead();
-            return new Csv().FromCsvStream(stream);
+            if (items.Count() > 1 && onlyTakeFirstFileInEachFolder)
+            {
+                var filePath = items.OrderBy(o => o.LastModified).Last().Name;
+                AddCsvFromPath(csvs, fileSystem, filePath);
+            }
+            else
+                foreach (var item in items)
+                    AddCsvFromPath(csvs, fileSystem, item.Name);
+
+            return csvs;
+        }
+
+        private static void AddCsvFromPath(List<Csv> csvs, DataLakeFileSystemClient fileSystem, string filePath)
+        {
+            var fileClient = fileSystem.GetFileClient(filePath);
+            if (fileClient != null)
+            {
+                using var stream = fileClient.OpenRead();
+                csvs.Add(new Csv().FromCsvStream(stream));
+            }
         }
 
         /// <summary>
         /// Get multiple files that are stored as Csvs in a given timeslot
         /// </summary>
-        /// <param name="tableName"></param>
         /// <param name="basePath"></param>
         /// <param name="from"></param>
         /// <param name="to"></param>
+        /// <param name="onlyTakeFirstFileInEachFolder">If true: If there are more than one file in a day-folder, it will only return the newest. If False, all files will be returned</param>
         /// <returns></returns>
-        public IEnumerable<KeyValuePair<DateTime, Csv>> GetCsvs(string tableName, string basePath, DateTime from, DateTime to)
+        public IEnumerable<KeyValuePair<DateTime, Csv>> GetCsvs(string basePath, DateTime from, DateTime to, bool onlyTakeFirstFileInEachFolder)
         {
             var fileSystem = DataLakeServiceClient.GetFileSystemClient(Container);
             if (!fileSystem.Exists())
@@ -118,33 +135,50 @@ namespace Bygdrift.DataLakeTools
                 yield break;
 
             foreach (var yearFolder in fileSystem.GetPaths(directory.Path).Where(o => o.IsDirectory == true))
-                if (int.TryParse(Path.GetFileName(yearFolder.Name), out int year))
+                if (int.TryParse(Path.GetFileName(yearFolder.Name), out int year) && year >= from.Year && year <= to.Year)
                     foreach (var monthFolder in fileSystem.GetPaths(yearFolder.Name).Where(o => o.IsDirectory == true))
+                    {
                         if (int.TryParse(Path.GetFileName(monthFolder.Name), out int month))
-                            foreach (var dayFolder in fileSystem.GetPaths(monthFolder.Name).Where(o => o.IsDirectory == true))
-                                if (int.TryParse(Path.GetFileName(dayFolder.Name), out int day))
+                        {
+                            var monthDate = new DateTime(year, month, 1);
+                            if (monthDate >= new DateTime(from.Year, from.Month, 1) && monthDate <= to)
+                            {
+                                foreach (var dayFolder in fileSystem.GetPaths(monthFolder.Name).Where(o => o.IsDirectory == true))
                                 {
-                                    var date = new DateTime(year, month, day);
-                                    var res = GetCsv(fileSystem, dayFolder, tableName, from, to, date);
-                                    if (res != null)
-                                        yield return new KeyValuePair<DateTime, Csv>(date, res);
-
-                                    foreach (var hourFolder in fileSystem.GetPaths(dayFolder.Name).Where(o => o.IsDirectory == true))
-                                        if (int.TryParse(Path.GetFileName(hourFolder.Name), out int hour))
+                                    if (int.TryParse(Path.GetFileName(dayFolder.Name), out int day))
+                                    {
+                                        var date = new DateTime(year, month, day);
+                                        if (date >= new DateTime(from.Year, from.Month, from.Day) && date <= to)
                                         {
-                                            date = new DateTime(year, month, day, hour, 0, 0);
-                                            res = GetCsv(fileSystem, hourFolder, tableName, from, to, date);
+                                            var res = GetFolderCsvs(fileSystem, dayFolder, from, to, date, onlyTakeFirstFileInEachFolder);
                                             if (res != null)
-                                                yield return new KeyValuePair<DateTime, Csv>(date, res);
+                                                foreach (var item in res)
+                                                    yield return new KeyValuePair<DateTime, Csv>(date, item);
+
+                                            foreach (var hourFolder in fileSystem.GetPaths(dayFolder.Name).Where(o => o.IsDirectory == true))
+                                            {
+                                                if (int.TryParse(Path.GetFileName(hourFolder.Name), out int hour))
+                                                {
+                                                    date = new DateTime(year, month, day, hour, 0, 0);
+                                                    res = GetFolderCsvs(fileSystem, hourFolder, from, to, date, onlyTakeFirstFileInEachFolder);
+                                                    if (res != null)
+                                                        foreach (var item in res)
+                                                            yield return new KeyValuePair<DateTime, Csv>(date, item);
+                                                }
+                                            }
                                         }
+                                    }
                                 }
+                            }
+                        }
+                    }
         }
 
         /// <param name="basePath">Such as "Raw". If null, then files are saved in the base directory</param>
         /// <param name="createIfNotExist"></param>
         internal DataLakeDirectoryClient GetDirectoryClient(string basePath, bool createIfNotExist)
         {
-            if(string.IsNullOrEmpty(basePath))
+            if (string.IsNullOrEmpty(basePath))
                 throw new ArgumentNullException(nameof(basePath));
 
             var fileSystem = DataLakeServiceClient.GetFileSystemClient(Container);

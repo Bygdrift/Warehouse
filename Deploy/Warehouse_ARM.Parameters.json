@@ -12,7 +12,7 @@
             "value": "warehouseUser"
         },
         "mssqlServerPassword": {
-            "value": "§erPad1sswo1rd§"
+            "value": "$erPad1sswo1rd!"
         },
         "mssqlDatabaseName": {
             "value": "Warehouse"
