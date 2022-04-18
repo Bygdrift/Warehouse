@@ -43,6 +43,10 @@ All modules can be installed and facilitated with ARM templates(Azure Resource M
 
 # Updates
 
+## 0.6.3
+
+Minor changes.
+
 ## 0.6.2
 
 In 0.6.1, all user settings should have a prefix of 'Setting--'. That has been removed, so when upgrading from 0.6.1, then go to each module, like 'DaluxFM-{resourcegroup.Id()}' > Configuration, and remove the prefixes, so 'Setting--ScheduleImportEstatesAndAssets' becomes 'ScheduleImportEstatesAndAssets'. Secrets in key-vault, will continue to have prefixes like 'Secret--' and 'Secret--{ModuleName}--'.

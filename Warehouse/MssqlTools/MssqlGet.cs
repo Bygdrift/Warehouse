@@ -44,6 +44,7 @@ namespace Bygdrift.MssqlTools
             return new Csv().FromExpandObjects(data);
         }
 
+        /// <summary></summary>
         public IEnumerable<ColumnType> GetColumnTypes(string tableName)
         {
            var sql = "SELECT C1.COLUMN_NAME, C1.DATA_TYPE, C1.CHARACTER_MAXIMUM_LENGTH, CASE WHEN KCU.COLUMN_NAME IS NULL THEN CAST(0 as bit) ELSE CAST(1 as bit)  END AS IsPrimaryKey\n" +

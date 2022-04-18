@@ -2,10 +2,13 @@
 
 namespace Bygdrift.Warehouse.MssqlTools.Models
 {
+    /// <summary></summary>
     public class ColumnType
     {
+        /// <summary></summary>
         public ColumnType() { }
 
+        /// <summary></summary>
         public ColumnType(string name, string sqlTypeName, int? sqlMaxLength, bool sqlIsPrimaryKey)
         {
             Name = name;
