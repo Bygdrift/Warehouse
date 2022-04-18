@@ -10,15 +10,6 @@ namespace WarehouseTests
     public class AppBaseTests
     {
         [TestMethod]
-        public void LoadTestConfigSecretGet()
-        {
-            var app = new AppBase<TestConfigSecretGet>();
-            var errors = app.Log.GetErrorsAndCriticals().ToList();
-            Assert.IsTrue(!string.IsNullOrEmpty(app.Settings.MssqlConnectionString));
-            Assert.IsTrue(!errors.Any());
-        }
-
-        [TestMethod]
         public void LoadSettings_MissingVitalSetting()
         {
             try
@@ -28,7 +19,7 @@ namespace WarehouseTests
             }
             catch (Exception ex)
             {
-                Assert.AreEqual(ex.Message, "App setting 'Warehouse:Settings:IsMissing_HasMissingAttribute' has not been set and is vital to continue. Thats not good");
+                Assert.AreEqual(ex.Message, "App setting 'IsMissing_HasMissingAttribute' has not been set and is vital to continue. Thats not good");
             }
         }
 
@@ -38,15 +29,9 @@ namespace WarehouseTests
             var app = new AppBase<TestConfigSettingsThrowLogError>();
             var errors = app.Log.GetErrorsAndCriticals().ToList();
             Assert.AreEqual(1, errors.Count);
-            Assert.AreEqual(errors.First(), "App setting 'Warehouse:Settings:IsMissing_HasNoMissingAttribute' has not been set. Thats not good");
+            Assert.AreEqual(errors.First(), "App setting 'IsMissing_HasNoMissingAttribute' has not been set. Thats not good");
             Assert.AreEqual(7, app.Settings.IsMissing_HasNoMissingAttribute);  //The default value on '7' is used
         }
-    }
-
-    public class TestConfigSecretGet
-    {
-        [ConfigSecret(NotSet = NotSet.ShowLogError)]
-        public string MssqlConnectionString { get; set; }
     }
 
     public class TestConfigSettingsThrowLogError

@@ -173,13 +173,18 @@ namespace Bygdrift.Warehouse
         }
 
         /// <summary>
-        /// The date when App was initiated. Can be changed, by changing LoadedUtc.
+        /// The date when App was initiated. Can be changed.
         /// If AppSetting 'TimeZoneId' is not set, then this time is UTC.
         /// The date used in dataLake to make a folder path
         /// </summary>
         public DateTime LoadedLocal
         {
             get { return _loadedLocal; }
+            set
+            {
+                _loadedLocal = value;
+                _loadedUtc = _loadedLocal.ToUniversalTime();
+            }
         }
 
         /// <summary>
@@ -199,7 +204,7 @@ namespace Bygdrift.Warehouse
                 {
                     _moduleName = Config["ModuleName"];
                     if (_moduleName == null)
-                        throw new Exception("'ModuleName' is not in appSettings. The module has been stopped.");
+                        throw new ArgumentNullException("'ModuleName' is not in appSettings. The module has been stopped.");
 
                     if (!_moduleName.All(o => char.IsLetterOrDigit(o)))
                         throw new Exception("The appSetting 'ModuleName', must only contain letters and numbers.");

@@ -23,7 +23,7 @@ namespace Bygdrift.DataLakeTools
             Container = app.ModuleName.ToLower();  //Rules for the containername (Is checked when loading app.ModuleName): https://www.thecodebuzz.com/azure-requestfailedexception-specified-resource-name-contains-invalid-characters/
             App = app;
         }
-        
+
         /// <summary>
         /// The serviceClient for contacting the DataLake
         /// </summary>
@@ -60,39 +60,42 @@ namespace Bygdrift.DataLakeTools
             if (string.IsNullOrEmpty(connectionString))
                 throw new ArgumentNullException(nameof(connectionString), "The dataLake connectionString, has to be set.");
 
+            var blobEndpoint = "";
             var endpointProtocol = "";
             var endpointSuffix = "";
             foreach (var item in connectionString.Split(';'))
             {
-                try
-                {
-                    var count = item.IndexOf('=');
-                    var pair = new string[] { item[..count], item[(count + 1)..] };
-                    if (pair.Length == 2)
+                if (!string.IsNullOrEmpty(item))
+                    try
                     {
-                        switch (pair[0].ToLower())
+                        var count = item.IndexOf('=');
+                        var pair = new string[] { item[..count], item[(count + 1)..] };
+                        if (pair.Length == 2)
                         {
-                            case "defaultendpointsprotocol": endpointProtocol = pair[1]; break;
-                            case "accountname": storageAccountName = pair[1]; break;
-                            case "accountkey": storageAccountKey = pair[1]; break;
-                            case "endpointsuffix": endpointSuffix = pair[1]; break;
+                            switch (pair[0].ToLower())
+                            {
+                                case "defaultendpointsprotocol": endpointProtocol = pair[1]; break;
+                                case "accountname": storageAccountName = pair[1]; break;
+                                case "accountkey": storageAccountKey = pair[1]; break;
+                                case "endpointsuffix": endpointSuffix = pair[1]; break;
+                                case "blobendpoint": blobEndpoint = pair[1]; break;
+                            }
                         }
                     }
-                }
-                catch (Exception e)
-                {
-                    throw new Exception("There´s an error in the Datalake connectionstring", e);
-                }
+                    catch (Exception e)
+                    {
+                        throw new Exception("There´s an error in the Datalake connectionstring", e);
+                    }
             }
 
-            if (string.IsNullOrEmpty(endpointProtocol) ||
-                string.IsNullOrEmpty(endpointSuffix) ||
-                string.IsNullOrEmpty(storageAccountName) ||
-                string.IsNullOrEmpty(storageAccountKey)
-            )
+            if (string.IsNullOrEmpty(storageAccountName) || string.IsNullOrEmpty(storageAccountKey))
                 throw new Exception("The value for DataLakeConnectionString, is not correct and is missing one or more parameters.");
-
-            ServiceUri = new Uri($"{endpointProtocol}://{storageAccountName}.dfs.{endpointSuffix}/");
+            else if (!string.IsNullOrEmpty(blobEndpoint)) //Localhost: https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator
+                ServiceUri = new Uri(blobEndpoint);
+            else if (string.IsNullOrEmpty(endpointProtocol) || string.IsNullOrEmpty(endpointSuffix))
+                throw new Exception("The value for DataLakeConnectionString, is not correct and is missing one or more parameters.");
+            else
+                ServiceUri = new Uri($"{endpointProtocol}://{storageAccountName}.dfs.{endpointSuffix}/");
         }
 
         internal string CreateDatePath(string basePath, bool savePerHour)

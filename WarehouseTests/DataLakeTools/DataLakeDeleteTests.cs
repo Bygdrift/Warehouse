@@ -13,12 +13,22 @@ namespace Tests.DataLakeTools
         [TestMethod]
         public async Task CreateAndDeleteBasePath()
         {
-            await app.DataLake.CreateDirectoryAsync("", FolderStructure.Path);
+            await app.DataLake.CreateDirectoryAsync("Refined", FolderStructure.Path);
 
-            Assert.IsTrue(app.DataLake.BasePathExists(""));
+            Assert.IsTrue(app.DataLake.BasePathExists("Refined"));
 
-            await app.DataLake.DeleteDirectoryAsync("", FolderStructure.Path);
-            Assert.IsFalse(app.DataLake.BasePathExists(""));
+            await app.DataLake.DeleteDirectoryAsync("Refined", FolderStructure.Path);
+            Assert.IsFalse(app.DataLake.BasePathExists("Refined"));
+        }
+
+        [TestMethod]
+        public async Task CreateAndDeleteRoot()
+        {
+            await app.DataLake.CreateDirectoryAsync("Refined", FolderStructure.Path);
+            Assert.IsTrue(app.DataLake.BasePathExists("Refined"));
+
+            await app.DataLake.DeleteDirectoryAsync(null, FolderStructure.Path);
+            Assert.IsFalse(app.DataLake.BasePathExists("Refined"));
         }
     }
 }

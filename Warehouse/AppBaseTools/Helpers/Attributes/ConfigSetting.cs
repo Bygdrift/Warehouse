@@ -1,5 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
@@ -43,38 +46,53 @@ namespace Bygdrift.Warehouse.Helpers.Attributes
 
         internal void GetData<TSettings>(AppBase app, PropertyInfo prop, TSettings settings)
         {
-            var value = app.Config.GetValue<object>(PropertyName);
-
-            if (value == null)
+            if (prop.PropertyType.IsArray)
             {
-                //This warning can be removed June 2022:
-                var settingValue = app.Config.GetValue<object>("Setting--" + PropertyName);
-                if (settingValue != null)
+                if (prop.PropertyType.GetElementType() == typeof(string))
                 {
-                    app.Log.LogError($"With the new update of Bygdrift Warehouse, you have to remove all prefixes of 'Setting--' in the current modules cofiguration'. The module will continue to function until June 2022, where this error will stop the execution.");
-                    if (CsvTools.Csv.RecordToType(prop.PropertyType, settingValue, out object res))
+                    var res = app.Config.GetSection(PropertyName).GetChildren().Select(o => o.Value).ToArray();
+                    if(res.Length > 0)
                         prop.SetValue(settings, res);
+                    else
+                        PropertIsNull(app, prop, settings);
                 }
                 else
-                {
-                    if (NotSet == NotSet.ThrowError)
-                        throw new Exception($"App setting '{prop.Name}' has not been set and is vital to continue. {ErrorMessage}");
-
-                    if (NotSet == NotSet.ShowLogError)
-                        app.Log.LogError($"App setting '{prop.Name}' has not been set. {ErrorMessage}");
-
-                    if (NotSet == NotSet.ShowLogInfo)
-                        app.Log.LogInformation($"App setting '{prop.Name}' has not been set. {ErrorMessage}");
-
-                    if (NotSet == NotSet.ShowLogWarning)
-                        app.Log.LogWarning($"App setting '{prop.Name}' has not been set. {ErrorMessage}");
-
-                    if (Default != null && CsvTools.Csv.RecordToType(prop.PropertyType, Default, out object res))
-                        prop.SetValue(settings, res);
-                }
+                    throw new InvalidOperationException($"The setting {prop.Name} is an array. It can only be an string[] in this version of Warehouse.");
             }
-            else if (CsvTools.Csv.RecordToType(prop.PropertyType, value, out object res))
-                prop.SetValue(settings, res);
+
+            var value = app.Config.GetValue(prop.PropertyType, PropertyName);
+
+            if (value == null)
+                PropertIsNull(app, prop, settings);
+            else
+                prop.SetValue(settings, value);
+        }
+
+        private void PropertIsNull<TSettings>(AppBase app, PropertyInfo property, TSettings settings)
+        {
+            //This warning can be removed June 2022:
+            var settingValue = app.Config.GetValue(property.PropertyType, "Setting--" + PropertyName);
+            if (settingValue != null)
+            {
+                app.Log.LogError($"With the new update of Bygdrift Warehouse, you have to remove all prefixes of 'Setting--' in the current modules cofiguration'. The module will continue to function until June 2022, where this error will stop the execution.");
+                property.SetValue(settings, settingValue);
+                return;
+            }
+
+            if (NotSet == NotSet.ThrowError)
+                throw new Exception($"App setting '{property.Name}' has not been set and is vital to continue. {ErrorMessage}");
+
+            if (NotSet == NotSet.ShowLogError)
+                app.Log.LogError($"App setting '{property.Name}' has not been set. {ErrorMessage}");
+
+            if (NotSet == NotSet.ShowLogInfo)
+                app.Log.LogInformation($"App setting '{property.Name}' has not been set. {ErrorMessage}");
+
+            if (NotSet == NotSet.ShowLogWarning)
+                app.Log.LogWarning($"App setting '{property.Name}' has not been set. {ErrorMessage}");
+
+            if (Default != null && CsvTools.Csv.RecordToType(property.PropertyType, Default, out object res))
+                property.SetValue(settings, res);
         }
     }
 }

@@ -174,12 +174,13 @@ namespace Bygdrift.DataLakeTools
                     }
         }
 
-        /// <param name="basePath">Such as "Raw". If null, then files are saved in the base directory</param>
+        /// <param name="basePath">Such as "Raw".</param>
         /// <param name="createIfNotExist"></param>
         internal DataLakeDirectoryClient GetDirectoryClient(string basePath, bool createIfNotExist)
         {
             if (string.IsNullOrEmpty(basePath))
-                throw new ArgumentNullException(nameof(basePath));
+                return null;
+            //    throw new ArgumentNullException(nameof(basePath));
 
             var fileSystem = DataLakeServiceClient.GetFileSystemClient(Container);
             if (!fileSystem.Exists())

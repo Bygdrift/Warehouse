@@ -8,7 +8,7 @@ namespace Bygdrift.MssqlTools
     /// <summary>
     /// Access to edit Microsoft SQL database data
     /// </summary>
-    public partial class Mssql : IDisposable//, IGenericDb
+    public partial class Mssql : IDisposable
     {
         private SqlConnection _connection;
 
@@ -42,7 +42,7 @@ namespace Bygdrift.MssqlTools
                     {
                         ConnectTimeout = 30,
                         CommandTimeout = 3600
-                    };
+                    };  
 
                     _connection = new SqlConnection(builder.ToString());
                 }
@@ -58,6 +58,7 @@ namespace Bygdrift.MssqlTools
 
                 return _connection;
             }
+            set { _connection = value; }
         }
 
         /// <summary>
