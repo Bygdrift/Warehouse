@@ -175,7 +175,7 @@ namespace Bygdrift.Warehouse.MssqlTools.Models
             }
 
             var maxLength = CsvMaxLength > SqlMaxLength || SqlMaxLength == null ? CsvMaxLength : SqlMaxLength;
-            typeExpression = GetTypeExtension(SqlType.varchar, maxLength);
+            typeExpression = SqlTypeName + GetTypeExtension(SqlType.varchar, maxLength);
             return true;
         }
 

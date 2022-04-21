@@ -16,6 +16,9 @@ namespace Bygdrift.DataLakeTools
         /// <param name="folderStructure"></param>
         public async Task CreateDirectoryAsync(string basePath, FolderStructure folderStructure)
         {
+            if(string.IsNullOrEmpty(basePath))
+                throw new ArgumentNullException(nameof(basePath));
+
             if (folderStructure == FolderStructure.DatePath)
                 basePath = CreateDatePath(basePath, false);
             if (folderStructure == FolderStructure.DateTimePath)

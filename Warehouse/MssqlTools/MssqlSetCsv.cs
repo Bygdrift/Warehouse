@@ -76,6 +76,8 @@ namespace Bygdrift.MssqlTools
             {
                 try
                 {
+                    Connection.DeleteAll($"[{App.ModuleName}].[{tableName}]");
+
                     if (csv.RowLimit.Max < 100)
                         Connection.InsertAll($"[{App.ModuleName}].[{tableName}]", data, csv.RowLimit.Max + 1, commandTimeout: 3600);
                     else

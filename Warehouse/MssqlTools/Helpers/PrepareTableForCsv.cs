@@ -94,12 +94,6 @@ namespace Bygdrift.MssqlTools.Helpers
             var sql = "";
             foreach (var colType in colTypes)
             {
-                //Right now I am just upgrading every change to be a varchar because it will take some time to make this conversion
-                //I also have to handle if a primarykey changes type
-
-                //colType.SqlMaxLength = colType.CsvMaxLength > colType.SqlMaxLength || colType.SqlMaxLength == null ? colType.CsvMaxLength : colType.SqlMaxLength;
-                //colType.SqlTypeName = "varchar";
-
                 if (colType.TryGetUpdatedChangedType(out string typeExpression))
                     sql += SqlUpdateCommand(colType.Name, typeExpression, colType.SqlIsPrimaryKey, false);
 
