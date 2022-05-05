@@ -65,13 +65,22 @@ namespace Bygdrift.Warehouse.AppBaseTools
         {
             var vaultUri = App.Config["VaultUri"];
             if (App.IsRunningLocal && string.IsNullOrEmpty(vaultUri))  //Then local and the setting vaultUri has not been set:
-                return App.Config[secretName];
+            {
+                var res = App.Config[secretName];
+                if (res != null)
+                    return res;
+
+                //Look if the secret is saved as a normal setting. And thats okay because there cannot be a secret and a setting with the same name
+                //So if "Secret--Module--DataLake", then look if it is saved as a setting: "DataLake":
+                return App.Config[secretName.Split("--").Last()];
+            }
 
             if (SecretProperties != null && SecretProperties.Any(o => o.Name == secretName))
             {
                 var res = SecretClient.GetSecret(secretName);
                 return res.Value.Value;
             }
+
             return null;
         }
     }

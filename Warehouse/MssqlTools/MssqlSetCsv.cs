@@ -32,6 +32,9 @@ namespace Bygdrift.MssqlTools
 
             try
             {
+                if (truncateTable)
+                    TruncateTable(tableName);
+
                 if (csv.RowLimit.Max < 100)
                     Connection.InsertAll($"[{App.ModuleName}].[{tableName}]", data, csv.RowLimit.Max, commandTimeout: 3600);
                 else
@@ -76,7 +79,8 @@ namespace Bygdrift.MssqlTools
             {
                 try
                 {
-                    Connection.DeleteAll($"[{App.ModuleName}].[{tableName}]");
+                    TruncateTable(tableName);
+                    //Connection.DeleteAll($"[{App.ModuleName}].[{tableName}]", commandTimeout:3600);
 
                     if (csv.RowLimit.Max < 100)
                         Connection.InsertAll($"[{App.ModuleName}].[{tableName}]", data, csv.RowLimit.Max + 1, commandTimeout: 3600);

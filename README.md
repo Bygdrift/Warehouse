@@ -43,6 +43,9 @@ All modules can be installed and facilitated with ARM templates(Azure Resource M
 
 # Updates
 
+## 0.6.6
+Added an update to CsvTools, so now it's possible to add a record by giving the header name instead of column number. The function: public Csv AddRecord(int row, string headerName, object value, bool createNewUniqueHeaderIfAlreadyExists = false)
+
 ## 0.6.3
 
 Minor changes.
