@@ -70,13 +70,14 @@ namespace Bygdrift.MssqlTools
         }
 
         /// <summary>
-        /// Empties the table if exists
+        /// Empties the table for data if exists
         /// </summary>
+        /// <returns>Null if no errors or else a string explaining the error</returns>
         public string TruncateTable(string tableName)
         {
             try
             {
-                Connection.ExecuteNonQuery($"IF OBJECT_ID('{App.ModuleName}.{tableName}', 'U') IS NOT NULL BEGIN TRUNCATE TABLE [{App.ModuleName}].[{tableName}] END");
+                Connection.DeleteAll($"[{App.ModuleName}].[{tableName}]", commandTimeout:3600);
             }
             catch (Exception e)
             {

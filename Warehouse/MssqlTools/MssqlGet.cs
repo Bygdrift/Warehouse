@@ -52,7 +52,7 @@ namespace Bygdrift.MssqlTools
             $"WHERE C1.TABLE_SCHEMA = '{App.ModuleName}' AND C1.TABLE_NAME = '{tableName}'";
 
             foreach (dynamic item in Connection.ExecuteQuery(sql))
-                yield return new ColumnType(item.COLUMN_NAME, item.DATA_TYPE, item.CHARACTER_MAXIMUM_LENGTH, item.IsPrimaryKey);
+                yield return new ColumnType(item.COLUMN_NAME).AddSql(item.DATA_TYPE, item.CHARACTER_MAXIMUM_LENGTH, item.IsPrimaryKey);
         }
 
         /// <summary>

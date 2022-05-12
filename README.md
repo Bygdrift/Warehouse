@@ -43,6 +43,10 @@ All modules can be installed and facilitated with ARM templates(Azure Resource M
 
 # Updates
 
+# 0.7.0
+Added function to Module.Settings, so its now poosible to add json with the attribute: [ConfigSetting(IsJson = true)].
+Fixed error: When data is send to MSSQL like fx integer and later gets changed to decimal, there was an error, but it's fixed.
+
 ## 0.6.6
 Added an update to CsvTools, so now it's possible to add a record by giving the header name instead of column number. The function: public Csv AddRecord(int row, string headerName, object value, bool createNewUniqueHeaderIfAlreadyExists = false)
 

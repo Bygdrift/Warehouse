@@ -35,6 +35,11 @@ namespace Bygdrift.Warehouse.Helpers.Attributes
         public string ErrorMessage { get; set; }
 
         /// <summary>
+        /// If true, it will read the text as json and save it as the property
+        /// </summary>
+        public bool IsJson { get; set; }
+
+        /// <summary>
         /// Throws an error and a logError if the property is missing
         /// </summary>
         public NotSet NotSet { get; set; }
@@ -46,29 +51,32 @@ namespace Bygdrift.Warehouse.Helpers.Attributes
 
         internal void GetData<TSettings>(AppBase app, PropertyInfo prop, TSettings settings)
         {
-            if (prop.PropertyType.IsArray)
-            {
-                if (prop.PropertyType.GetElementType() == typeof(string))
-                {
-                    var res = app.Config.GetSection(PropertyName).GetChildren().Select(o => o.Value).ToArray();
-                    if(res.Length > 0)
-                        prop.SetValue(settings, res);
-                    else
-                        PropertIsNull(app, prop, settings);
-                }
-                else
-                    throw new InvalidOperationException($"The setting {prop.Name} is an array. It can only be an string[] in this version of Warehouse.");
-            }
+            //if (prop.PropertyType.IsArray)
+            //{
+            //    if (prop.PropertyType.GetElementType() == typeof(string))
+            //    {
+            //        var res = app.Config.GetSection(PropertyName).GetChildren().Select(o => o.Value).ToArray();
+            //        if(res.Length > 0)
+            //            prop.SetValue(settings, res);
+            //        else
+            //            PropertIsNull(app, prop, settings);
+            //    }
+            //    else
+            //        throw new InvalidOperationException($"The setting {prop.Name} is an array. It can only be a string[] in this version of Warehouse.");
+            //}
 
-            var value = app.Config.GetValue(prop.PropertyType, PropertyName);
+            var value = app.Config.GetValue(IsJson ? typeof(string) : prop.PropertyType, PropertyName);
 
             if (value == null)
-                PropertIsNull(app, prop, settings);
-            else
-                prop.SetValue(settings, value);
+                value = PropertIsNull(app, prop, settings);
+
+            if (IsJson && value != null)
+                value = JsonConvert.DeserializeObject((string)value, prop.PropertyType);
+
+            prop.SetValue(settings, value);
         }
 
-        private void PropertIsNull<TSettings>(AppBase app, PropertyInfo property, TSettings settings)
+        private object PropertIsNull<TSettings>(AppBase app, PropertyInfo property, TSettings settings)
         {
             //This warning can be removed June 2022:
             var settingValue = app.Config.GetValue(property.PropertyType, "Setting--" + PropertyName);
@@ -76,7 +84,7 @@ namespace Bygdrift.Warehouse.Helpers.Attributes
             {
                 app.Log.LogError($"With the new update of Bygdrift Warehouse, you have to remove all prefixes of 'Setting--' in the current modules cofiguration'. The module will continue to function until June 2022, where this error will stop the execution.");
                 property.SetValue(settings, settingValue);
-                return;
+                return null;
             }
 
             if (NotSet == NotSet.ThrowError)
@@ -91,8 +99,10 @@ namespace Bygdrift.Warehouse.Helpers.Attributes
             if (NotSet == NotSet.ShowLogWarning)
                 app.Log.LogWarning($"App setting '{property.Name}' has not been set. {ErrorMessage}");
 
-            if (Default != null && CsvTools.Csv.RecordToType(property.PropertyType, Default, out object res))
-                property.SetValue(settings, res);
+            if (Default != null && CsvTools.Csv.RecordToType(IsJson ? typeof(string) : property.PropertyType, Default, out object res))
+                return res;
+
+            return null;
         }
     }
 }

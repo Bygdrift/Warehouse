@@ -3,7 +3,7 @@
 	
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<Version>0.6.6</Version>
+		<Version>0.7.0</Version>
 		<Authors>kenboc</Authors>
 		<Company>Bygdrift</Company>
 		<Description>Create Azure App functions to fetch data from an unspecified data source, wash data and ingest to a data lake and a database in Azure. This nuget package handles communication with data lake and database.</Description>
@@ -21,7 +21,8 @@
 		<AssemblyName>Bygdrift.Warehouse</AssemblyName>
 		<RootNamespace>Bygdrift.Warehouse</RootNamespace>
 		<PackageReleaseNotes>
-			Added an update to CsvTools, so now it's possible to add a record by giving the header name instead of column number. The function: public Csv AddRecord(int row, string headerName, object value, bool createNewUniqueHeaderIfAlreadyExists = false)
+			Added function to Module.Settings, so its now poosible to add json with the attribute: [ConfigSetting(IsJson = true)].
+			Fixed error: When data is send to MSSQL like fx integer and later gets changed to decimal, there was an error, but it's fixed.
 		</PackageReleaseNotes>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>

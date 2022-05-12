@@ -16,7 +16,7 @@ namespace Bygdrift.DataLakeTools
         /// <param name="folderStructure"></param>
         public async Task CreateDirectoryAsync(string basePath, FolderStructure folderStructure)
         {
-            if(string.IsNullOrEmpty(basePath))
+            if (string.IsNullOrEmpty(basePath))
                 throw new ArgumentNullException(nameof(basePath));
 
             if (folderStructure == FolderStructure.DatePath)
@@ -26,7 +26,7 @@ namespace Bygdrift.DataLakeTools
 
             var directory = GetDirectoryClient(basePath, true);
 
-            if(!await directory.ExistsAsync())
+            if (!await directory.ExistsAsync())
                 await directory.CreateAsync();
         }
 
@@ -37,14 +37,15 @@ namespace Bygdrift.DataLakeTools
         /// <param name="fileName">Such as "Lots.csv"</param>
         /// <param name="csv"></param>
         /// <param name="folderStructure">What structure data should be saved into</param>
+        /// <param name="append">If the file already exists, then data will be appended to the end of this file</param>
         /// <returns>The filePath</returns>
-        public async Task<string> SaveCsvAsync(Csv csv, string basePath, string fileName, FolderStructure folderStructure)
+        public async Task<string> SaveCsvAsync(Csv csv, string basePath, string fileName, FolderStructure folderStructure, bool append = false)
         {
             if (csv != null && csv != default)
             {
                 using var stream = csv.ToCsvStream();
                 if (stream.Length > 0)
-                    return await SaveStreamAsync(stream, basePath, fileName, folderStructure);
+                    return await SaveStreamAsync(stream, basePath, fileName, folderStructure, append);
             }
             return string.Empty;
         }
@@ -58,14 +59,15 @@ namespace Bygdrift.DataLakeTools
         /// <param name="folderStructure">What structure data should be saved into</param>
         /// <param name="paneName">The name of the worksheet</param>
         /// <param name="tableName">The name of the table inside Excel. If null, no fancy table will be added</param>
+        /// <param name="append">If the file already exists, then data will be appended to the end of this file</param>
         /// <returns>The filePath</returns>
-        public async Task<string> SaveExcelAsync(Csv csv, string basePath, string fileName, FolderStructure folderStructure, string paneName, string tableName = null)
+        public async Task<string> SaveExcelAsync(Csv csv, string basePath, string fileName, FolderStructure folderStructure, string paneName, string tableName = null, bool append = false)
         {
             if (csv != null && csv != default)
             {
                 using var stream = csv.ToExcelStream(paneName, tableName);
                 if (stream.Length > 0)
-                    return await SaveStreamAsync(stream, basePath, fileName, folderStructure);
+                    return await SaveStreamAsync(stream, basePath, fileName, folderStructure, append);
             }
             return string.Empty;
         }
@@ -77,15 +79,16 @@ namespace Bygdrift.DataLakeTools
         /// <param name="fileName">Such as "Lots.json"</param>
         /// <param name="data">The object to be saved</param>
         /// <param name="folderStructure">What structure data should be saved into</param>
+        /// <param name="append">If the file already exists, then data will be appended to the end of this file</param>
         /// <returns>A file path to where the file is saved</returns>
-        public async Task<string> SaveObjectAsync(object data, string basePath, string fileName, FolderStructure folderStructure)
+        public async Task<string> SaveObjectAsync(object data, string basePath, string fileName, FolderStructure folderStructure, bool append = false)
         {
             if (data is null)
                 return null;
 
             var json = JsonConvert.SerializeObject(data);
             using var stream = new MemoryStream(Encoding.Default.GetBytes(json));
-            return await SaveStreamAsync(stream, basePath, fileName, folderStructure);
+            return await SaveStreamAsync(stream, basePath, fileName, folderStructure, append);
         }
 
         /// <summary>
@@ -95,8 +98,9 @@ namespace Bygdrift.DataLakeTools
         /// <param name="fileName">Such as "Lots.txt"</param>
         /// <param name="stream"></param>
         /// <param name="folderStructure">What structure data should be saved into</param>
+        /// <param name="append">If the file already exists, then data will be appended to the end of this file</param>
         /// <returns>A file path to where the file is saved</returns>
-        public async Task<string> SaveStreamAsync(Stream stream, string basePath, string fileName, FolderStructure folderStructure)
+        public async Task<string> SaveStreamAsync(Stream stream, string basePath, string fileName, FolderStructure folderStructure, bool append = false)
         {
             if (stream == null || stream.Length == 0)
                 return default;
@@ -112,7 +116,16 @@ namespace Bygdrift.DataLakeTools
 
             try
             {
-                await fileClient.UploadAsync(stream, true);
+                if (append)
+                {
+                    var blobProperties = fileClient.GetProperties();
+                    fileClient.Append(stream, offset: blobProperties.Value.ContentLength);
+                    fileClient.Flush(position: stream.Length + blobProperties.Value.ContentLength);
+                }
+                else
+                {
+                    await fileClient.UploadAsync(stream, true);
+                }
                 return string.Join('/', basePath, fileClient.Name);
             }
             catch (Exception e)
@@ -120,11 +133,6 @@ namespace Bygdrift.DataLakeTools
                 App.Log.LogError($"There were an error, trying to upload file to datalake. BasePath: '{basePath}', filename: '{fileName}'. Error: {e.Message}");
                 return string.Empty;
             }
-
-            //Code for appending:
-            //var blobProperties = fileClient.GetProperties();
-            //fileClient.Append(stream, offset: blobProperties.Value.ContentLength);
-            //fileClient.Flush(position: stream.Length + blobProperties.Value.ContentLength);
         }
 
         /// <summary>
@@ -134,16 +142,17 @@ namespace Bygdrift.DataLakeTools
         /// <param name="fileName">Such as "Lots.csv"</param>
         /// <param name="data">The string to bae saved</param>
         /// <param name="folderStructure">What structure data should be saved into</param>
+        /// <param name="append">If the file already exists, then data will be appended to the end of this file</param>
         /// <returns>A file path to where the file is saved</returns>
-        public async Task<string> SaveStringAsync(string data, string basePath, string fileName, FolderStructure folderStructure)
+        public async Task<string> SaveStringAsync(string data, string basePath, string fileName, FolderStructure folderStructure, bool append = false)
         {
             if (string.IsNullOrEmpty(data))
                 return null;
 
             using var stream = new MemoryStream(Encoding.Default.GetBytes(data));
-            return await SaveStreamAsync(stream, basePath, fileName, folderStructure);
+            return await SaveStreamAsync(stream, basePath, fileName, folderStructure, append);
         }
 
-       
+
     }
 }

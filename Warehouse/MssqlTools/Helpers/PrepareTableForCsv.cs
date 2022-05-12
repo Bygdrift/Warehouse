@@ -12,25 +12,22 @@ namespace Bygdrift.MssqlTools.Helpers
     internal class PrepareTableForCsv
     {
         private readonly Mssql mssql;
-        private readonly Csv csv;
         private readonly string tableName;
-        private readonly string primaryKey;
 
         internal PrepareTableForCsv(Mssql mssql, Csv csv, string tableName, string primaryKey, bool truncateTable)
         {
             this.mssql = mssql;
-            this.csv = csv;
             this.tableName = tableName;
-            this.primaryKey = primaryKey;
             var sql = "";
             if (string.IsNullOrEmpty(tableName))
                 throw new ArgumentNullException(nameof(tableName), "Table name is null. It has to be set.");
 
-            var colTypes = GetCsvAndSqlColumnTypes();
+            var colTypes = GetColTypes(csv, primaryKey);
+
             if (colTypes == null || !colTypes.Any())
                 return;
 
-            if (colTypes.All(o => !o.SqlIsSet))
+            if (colTypes.All(o => !o.IsSetForSql))
                 sql = CreateTableAndColumns(colTypes);
             else
                 sql = UpdateColumns(colTypes);
@@ -50,55 +47,57 @@ namespace Bygdrift.MssqlTools.Helpers
             }
         }
 
-        private List<ColumnTypeExtend> GetCsvAndSqlColumnTypes()
+        public List<ColumnType> GetColTypes(Csv csv, string csvPrimaryKey)
         {
-            var res = new List<ColumnTypeExtend>();
-            var sqlColTypes = mssql.GetColumnTypes(tableName);
-            var csvHeaders = csv.Headers.Values.Select(o => o.ToString()).ToList();
+            var colTypes = mssql.GetColumnTypes(tableName).ToList();
 
-            foreach (var sqlColType in sqlColTypes)
-            {
+            foreach (var sqlColType in colTypes)
                 if (csv.TryGetColId(sqlColType.Name, out int csvColId, false))  //Not caseSensitive because SQL are not
                 {
-                    var csvIsPrimaryKey = primaryKey != null && primaryKey.Equals(sqlColType.Name);
-                    res.Add(new ColumnTypeExtend(sqlColType, csv.ColTypes[csvColId], csv.ColMaxLengths[csvColId], csvIsPrimaryKey));
+                    var csvIsPrimaryKey = csvPrimaryKey != null && csvPrimaryKey.Equals(sqlColType.Name);
+                    sqlColType.AddCsv(csv.ColTypes[csvColId], csv.ColMaxLengths[csvColId], csvIsPrimaryKey);
                 }
-                else
-                    res.Add(new ColumnTypeExtend(sqlColType));
-            }
 
-            var notInSqlHeaders = csvHeaders.Except(sqlColTypes.Select(o => o.Name));
+            var notInSqlHeaders = csv.Headers.Values.Except(colTypes.Select(o => o.Name));
             foreach (var name in notInSqlHeaders)
             {
                 if (csv.TryGetColId(name, out int csvColId, false) && csv.ColTypes.Any() && csv.ColMaxLengths.Any())  //Not caseSensitive because SQL are not
                 {
-                    var isPrimaryKey = primaryKey != null && primaryKey.Equals(name);
-                    res.Add(new ColumnTypeExtend(name, csv.ColTypes[csvColId], csv.ColMaxLengths[csvColId], isPrimaryKey));
+                    var isPrimaryKey = csvPrimaryKey != null && csvPrimaryKey.Equals(name);
+                    colTypes.Add(new ColumnType(name).AddCsv(csv.ColTypes[csvColId], csv.ColMaxLengths[csvColId], isPrimaryKey));
                 }
             }
-            return res;
+            return colTypes;
         }
 
-        private string CreateTableAndColumns(List<ColumnTypeExtend> colTypes)
+        private string CreateTableAndColumns(List<ColumnType> colTypes)
         {
             CreateSchemaIfNotExists();
             var cols = "";
             foreach (var colType in colTypes)
-                cols += $"[{colType.Name}] {colType.CsvTypeExpression} " + (colType.CsvIsPrimaryKey ? "NOT NULL PRIMARY KEY" : "NULL") + ",\n";
-
+            {
+                colType.TryGetUpdatedChangedType(out string typeExpression);
+                cols += $"[{colType.Name}] {typeExpression} " + (colType.IsPrimaryKeyCsv ? "NOT NULL PRIMARY KEY" : "NULL") + ",\n";
+            }
             return $"CREATE TABLE [{mssql.App.ModuleName}].[{tableName}](\n{cols})";
         }
 
-        private string UpdateColumns(List<ColumnTypeExtend> colTypes)
+        private string UpdateColumns(List<ColumnType> colTypes)
         {
             var sql = "";
             foreach (var colType in colTypes)
             {
-                if (colType.TryGetUpdatedChangedType(out string typeExpression))
-                    sql += SqlUpdateCommand(colType.Name, typeExpression, colType.SqlIsPrimaryKey, false);
+                if (colType.IsPrimaryKeyCsv && !colType.IsPrimaryKeySql)  //PrimaryKey added
+                    mssql.App.Log.LogError("The system cannot add a primary key to an already created table.");
 
-                if (!colType.SqlIsSet)  //Add missing 
-                    sql += SqlUpdateCommand(colType.Name, colType.CsvTypeExpression, colType.CsvIsPrimaryKey, true);
+                if (!colType.IsPrimaryKeyCsv && colType.IsPrimaryKeySql)  //PrimaryKey removed
+                    mssql.App.Log.LogError("The system cannot remove a primary key to an already created table.");
+
+                if (colType.TryGetUpdatedChangedType(out string typeExpression))
+                    sql += SqlUpdateCommand(colType.Name, typeExpression, colType.IsPrimaryKeySql, false);
+
+                if (!colType.IsSetForSql)  //Add missing 
+                    sql += SqlUpdateCommand(colType.Name, typeExpression, colType.IsPrimaryKeyCsv, true);
             }
             return sql;
         }

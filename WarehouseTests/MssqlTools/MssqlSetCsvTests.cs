@@ -35,7 +35,7 @@ namespace Tests.MssqlTools
 
         //    var csv2 = new Csv("Int, Bit").AddRow(2.23554568, true);
         //    Assert.IsNull(app.Mssql.InserCsv(csv2, table, false, true));
-            
+
         //    var columnTypes = app.Mssql.GetColumnTypes(table);
         //    var csvFromReader = app.Mssql.GetAsCsv(table);
 
@@ -64,7 +64,7 @@ namespace Tests.MssqlTools
             Assert.IsTrue(csvFromReader.GetRecord(1, 5).Equals("Knud"));
 
             Assert.IsFalse(app.Log.GetErrorsAndCriticals().Any());
-            app.Mssql.Dispose();
+            Assert.IsNull(Cleanup(table));
         }
 
 
@@ -81,21 +81,38 @@ namespace Tests.MssqlTools
             Assert.IsNull(app.Mssql.MergeCsv(csv, table, "Id", false, true));
             var csvFromReader = app.Mssql.GetAsCsv(table);
             Assert.IsFalse(csvFromReader.TryGetColId("EmptyColumn", out int _));
-            app.Mssql.Dispose();
+            Assert.IsNull(Cleanup(table));
         }
 
         [TestMethod]
-        public void InsertCsvThenMerge()
+        public void ChangeIntToVarchar()
         {
-            ///TODO: Here I create a table without a primary key and then I create one. Handle it!
-            var table = "SaveCsvAndOverwrite";
-            var csvOne = new Csv("Id, Data, Date, Age").AddRow(1, "Some text", DateTime.Now, 22);
-            var csvTwo = new Csv("Id, Data, Date, Age, Name").AddRow(1, "Some more text", DateTime.Now, 22, "Knud");
-
+            var table = "ChangeIntToVarchar";
             Assert.IsNull(app.Mssql.DeleteTable(table));
-            Assert.IsNull(app.Mssql.InserCsv(csvOne, table, false, false));
-            Assert.IsNull(app.Mssql.MergeCsv(csvTwo, table, "Id", false, false));
-            app.Mssql.Dispose();
+            Assert.IsNull(app.Mssql.MergeCsv(new Csv("Id, Data").AddRow("A", 5), table, "Id", false, false));
+            Assert.IsNull(app.Mssql.MergeCsv(new Csv("Id, Data").AddRow("A", "AB"), table, "Id", false, false));
+            Assert.IsNull(app.Mssql.MergeCsv(new Csv("Id, Data").AddRow("A", 6), table, "Id", false, false));
+            Assert.IsNull(app.Mssql.DeleteTable(table));
+            Assert.IsNull(app.Mssql.MergeCsv(new Csv("Id, Data").AddRow("A", "AB"), table, "Id", false, false));
+            Assert.IsNull(app.Mssql.MergeCsv(new Csv("Id, Data").AddRow("A", 6), table, "Id", false, false));
+            Assert.IsNull(Cleanup(table));
+        }
+
+        [TestMethod]
+        public void InsertCsvThenMergeFailsOnPrimaryKeay()
+        {
+            var table = "InsertCsvThenMergeFailsOnPrimaryKeay";
+            Assert.IsNull(app.Mssql.DeleteTable(table));
+            Assert.IsNull(app.Mssql.InserCsv(new Csv("Id, Data").AddRow(1, "Some text"), table, false, false));
+            try
+            {
+                app.Mssql.MergeCsv(new Csv("Id, Data").AddRow(1, "Some more text"), table, "Id", false, false);
+            }
+            catch (Exception)
+            {
+            }
+            Assert.AreEqual(app.Log.GetErrorsAndCriticals().Count(), 2);
+            Assert.IsNull(Cleanup(table));
         }
 
         [TestMethod]
@@ -108,7 +125,7 @@ namespace Tests.MssqlTools
             Assert.IsNull(app.Mssql.DeleteTable(table));
             Assert.IsNull(app.Mssql.MergeCsv(csv, table, "Index", false, false));
             Assert.IsFalse(app.Log.GetErrorsAndCriticals().Any());
-            app.Mssql.Dispose();
+            Assert.IsNull(Cleanup(table));
         }
 
         [TestMethod]
@@ -123,8 +140,7 @@ namespace Tests.MssqlTools
                 Assert.IsNull(app.Mssql.MergeCsv(csv, table, "Id", false, false));
             }
             Assert.IsFalse(app.Log.GetErrorsAndCriticals().Any());
-            app.Mssql.Dispose();
-            //var errors = Task.WhenAll(tasks).Result.SelectMany(o => o);
+            Assert.IsNull(Cleanup(table));
         }
 
         /// <summary>
@@ -136,7 +152,7 @@ namespace Tests.MssqlTools
         {
             var table = "LoadMuchData2";
             var csv = new Csv("id, text1, text2, number");
-            for (int r = 1; r < 100000; r++)
+            for (int r = 1; r < 1000; r++)
                 csv.AddRow(r, "This is a text that should indcate some length", "This is a text that should indcate some length", 105643256);
 
             Assert.IsNull(app.Mssql.DeleteTable(table));
@@ -144,7 +160,7 @@ namespace Tests.MssqlTools
             Assert.IsNull(app.Mssql.DeleteTable(table));
             Assert.IsNull(app.Mssql.InserCsv(csv, table, false, false));
             Assert.IsFalse(app.Log.GetErrorsAndCriticals().Any());
-            app.Mssql.Dispose();
+            Assert.IsNull(Cleanup(table));
         }
 
         [TestMethod]
@@ -158,7 +174,7 @@ namespace Tests.MssqlTools
             Assert.IsNull(app.Mssql.MergeCsv(csv, table, "Id", false, false));
             Assert.IsNull(app.Mssql.MergeCsv(csvTwo, table, "Id", false, false));
             Assert.IsFalse(app.Log.GetErrorsAndCriticals().Any());
-            app.Mssql.Dispose();
+            Assert.IsNull(Cleanup(table));
         }
 
         [TestMethod]
@@ -173,7 +189,7 @@ namespace Tests.MssqlTools
             Assert.IsNull(app.Mssql.TruncateTable(table));
             Assert.IsNull(app.Mssql.MergeCsv(csvTwo, table, "Id", false, false));
             Assert.IsFalse(app.Log.GetErrorsAndCriticals().Any());
-            app.Mssql.Dispose();
+            Assert.IsNull(Cleanup(table));
         }
 
         [TestMethod]
@@ -188,7 +204,7 @@ namespace Tests.MssqlTools
 
             Assert.IsNull(app.Mssql.InserCsv(csv, table, false, false));
             Assert.IsTrue(app.Log.GetErrorsAndCriticals().Any());
-            app.Mssql.Dispose();
+            Assert.IsNull(Cleanup(table));
         }
 
         [TestMethod]
@@ -212,7 +228,7 @@ namespace Tests.MssqlTools
             Assert.IsNull(app.Mssql.InserCsv(csvTwo, table, false, false));
             var csvFromReader2 = app.Mssql.GetAsCsv(table);
             Assert.IsTrue(csvFromReader2.GetRecord(2, 2).Equals("Some more text"));
-            app.Mssql.Dispose();
+            Assert.IsNull(Cleanup(table));
         }
 
         [TestMethod]
@@ -226,14 +242,21 @@ namespace Tests.MssqlTools
             Assert.IsNull(app.Mssql.MergeCsv(csvOne, table, "Id", false, false));
 
             var csvFromReader1 = app.Mssql.GetAsCsv(table);
-            Assert.IsTrue(csvFromReader1.Records[(1, 2)].Equals("Some text"));
+            Assert.IsTrue(csvFromReader1.GetRecord(1, 2).Equals("Some text"));
 
             Assert.IsNull(app.Mssql.MergeCsv(csvTwo, table, "Id", false, false));
 
             var csvFromReader2 = app.Mssql.GetAsCsv(table);
-            Assert.IsTrue(csvFromReader2.GetRecord(1,2).Equals("Some more text"));
-            Assert.IsTrue(csvFromReader2.GetRecord(1,5).Equals("Knud"));
+            Assert.IsTrue(csvFromReader2.GetRecord(1, 2).Equals("Some more text"));
+            Assert.IsTrue(csvFromReader2.GetRecord(1, 5).Equals("Knud"));
+            Assert.IsNull(Cleanup(table));
+        }
+
+        private string Cleanup(string tableName)
+        {
+            var res = app.Mssql.DeleteTable(tableName);
             app.Mssql.Dispose();
+            return res;
         }
     }
 }

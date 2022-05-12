@@ -3,6 +3,7 @@ using Bygdrift.Warehouse;
 using Bygdrift.Warehouse.Helpers.Logs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,6 +45,18 @@ namespace Tests.DataLakeTools
 
             var logErrors = dataLake.App.Log.GetErrorsAndCriticals().ToList();
             Assert.IsTrue(logErrors.Count > 1);
+        }
+
+        [TestMethod]
+        public async Task AppendStream()
+        {
+            var stream = new MemoryStream(Encoding.UTF8.GetBytes("Hejsa"));
+            await dataLake.SaveStreamAsync(stream, "Raw", "test.txt", FolderStructure.Path);
+            await dataLake.SaveStreamAsync(stream, "Raw", "test.txt", FolderStructure.Path, true);
+            var streamOut = app.DataLake.GetFile("Raw/test.txt").Stream;
+            StreamReader reader = new StreamReader(streamOut); 
+            var text = reader.ReadToEnd();
+            Assert.AreEqual(text, "HejsaHejsa");
         }
 
         [TestMethod]
