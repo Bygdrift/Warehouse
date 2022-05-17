@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Bygdrift.DataLakeTools
@@ -26,6 +27,49 @@ namespace Bygdrift.DataLakeTools
             var directory = GetDirectoryClient(basePath, false);
             if (directory != null && directory.Exists())
                 await directory.DeleteAsync();
+        }
+
+        /// <summary>
+        /// If a base directory are build with subfolders like "basePath/yyyy/mm/dd/and eventual HH", then this method will remove all folders thats equal or older than the given amount of days.
+        /// Paths like: "basePath/abc" and "basePath/abc/..." will be ignored.
+        /// </summary>
+        /// <param name="basePath"></param>
+        /// <param name="equalOrolderThanDays">If 7, then all subfolders equal, or older than 7 days, will be removed</param>
+        public async Task DeleteDirectoriesOlderThanDaysAsync(string basePath, int equalOrolderThanDays)
+        {
+            var olderThan = DateTime.Now.AddDays(-equalOrolderThanDays);
+            var directories = GetDirectories(basePath);
+            var fileSystem = DataLakeServiceClient.GetFileSystemClient(Container);
+
+            foreach (var year in GetDirectories(basePath))
+            {
+                var yearString = year.Name.Split('/').Last();
+                if (int.TryParse(yearString, out int yearInt))
+                {
+                    if (new DateTime(yearInt, 12, 31) <= olderThan)
+                        await fileSystem.DeleteDirectoryAsync(year.Name);
+                    else if (new DateTime(yearInt, 1, 1) <= olderThan)
+                        foreach (var month in GetDirectories(year.Name))
+                        {
+                            var monthString = month.Name.Split('/').Last();
+                            if (int.TryParse(monthString, out int monthInt))
+                            {
+                                if (new DateTime(yearInt, monthInt, 31) <= olderThan)
+                                    await fileSystem.DeleteDirectoryAsync(month.Name);
+                                else if (new DateTime(yearInt, monthInt, 1) <= olderThan)
+                                    foreach (var day in GetDirectories(month.Name))
+                                    {
+                                        if (int.TryParse(day.Name, out int dayInt))
+                                        {
+                                            var dayDate = new DateTime(yearInt, monthInt, dayInt);
+                                            if (dayDate <= olderThan)
+                                                await fileSystem.DeleteDirectoryAsync(day.Name);
+                                        }
+                                    }
+                            }
+                        }
+                }
+            }
         }
 
         private async Task DeleteAllAsync()

@@ -36,6 +36,7 @@
     <Folder Include="CsvTools\" />
     <Folder Include="Files\Csv\Export\" />
     <Folder Include="Files\Excel\Export\" />
+    <Folder Include="Files\Out\" />
   </ItemGroup>
 
   <ItemGroup>

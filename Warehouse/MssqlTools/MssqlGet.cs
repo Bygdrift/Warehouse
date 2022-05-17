@@ -23,7 +23,7 @@ namespace Bygdrift.MssqlTools
             try
             {
                 IEnumerable<dynamic> data = Connection.QueryAll($"[{App.ModuleName}].[{tableName}]");
-                return new Csv().FromExpandObjects(data);
+                return new Csv().FromExpandoObjects(data);
             }
             catch (Exception)
             {
@@ -41,7 +41,7 @@ namespace Bygdrift.MssqlTools
         {
             var fields = Field.From(columns);
             IEnumerable<dynamic> data = Connection.QueryAll($"[{App.ModuleName}].[{tableName}]", fields: fields);
-            return new Csv().FromExpandObjects(data);
+            return new Csv().FromExpandoObjects(data);
         }
 
         /// <summary></summary>

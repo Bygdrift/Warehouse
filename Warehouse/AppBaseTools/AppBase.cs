@@ -56,6 +56,7 @@ namespace Bygdrift.Warehouse
     {
         private IConfigurationRoot _config;
         private DataLake _dataLake;
+        private DataLakeQueue _dataLakeQueue;
         private string _dataLakeConnectionString;
         //private string _dataLakeContainer;
         //private string _functionAppName;
@@ -101,6 +102,11 @@ namespace Bygdrift.Warehouse
         /// Link to Bygdrift dataLake tools for reading and writing. 
         /// </summary>
         public DataLake DataLake { get { return _dataLake ??= new DataLake(this); } }
+
+        /// <summary>
+        /// Link to Bygdrift dataLake tools for reading and writing. 
+        /// </summary>
+        public DataLakeQueue DataLakeQueue { get { return _dataLakeQueue ??= new DataLakeQueue(this); } }
 
         internal string DataLakeConnectionString
         {

@@ -200,6 +200,29 @@ namespace Bygdrift.DataLakeTools
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="basePath"></param>
+        /// <returns>Directories in a base folder</returns>
+        public IEnumerable<PathItem> GetDirectories(string basePath)
+        {
+            var res = new List<string>();
+
+            var fileSystem = DataLakeServiceClient.GetFileSystemClient(Container);
+            if (!fileSystem.Exists())
+                return default;
+
+            if (string.IsNullOrEmpty(basePath))
+                return fileSystem.GetPaths().Where(o => o.IsDirectory == true);
+
+            var directory = fileSystem.GetDirectoryClient(basePath);
+            if (!directory.Exists())
+                return default;
+
+            return fileSystem.GetPaths(directory.Path).Where(o => o.IsDirectory == true);
+        }
+
+        /// <summary>
         /// Gets a Json file from Data lake and tries to convert it to T
         /// </summary>
         /// <param name="basePath">Such as "Raw". If null, then files are saved in the base directory</param>

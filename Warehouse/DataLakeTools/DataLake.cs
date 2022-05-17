@@ -16,7 +16,6 @@ namespace Bygdrift.DataLakeTools
         /// <summary>
         /// Constructror for dataLake
         /// </summary>
-        /// <param name="app">The AppBase</param>
         public DataLake(AppBase app)
         {
             SetConnectionString(app.DataLakeConnectionString);

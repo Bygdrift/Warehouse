@@ -1,6 +1,8 @@
 using Bygdrift.DataLakeTools;
 using Bygdrift.Warehouse;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Tests.DataLakeTools
@@ -19,6 +21,19 @@ namespace Tests.DataLakeTools
 
             await app.DataLake.DeleteDirectoryAsync("Refined", FolderStructure.Path);
             Assert.IsFalse(app.DataLake.BasePathExists("Refined"));
+        }
+
+        [TestMethod]
+        public async Task DeleteOlderThanDays()
+        {
+            await app.DataLake.SaveStringAsync("hej", "DeleteOlderThanDays", "data.txt", FolderStructure.DateTimePath);
+            app.LoadedLocal = DateTime.Now.AddMonths(-6);
+            await app.DataLake.SaveStringAsync("hej", "DeleteOlderThanDays", "data.txt", FolderStructure.DateTimePath);
+
+            var a = app.DataLake.GetDirectories(null);
+            await app.DataLake.DeleteDirectoriesOlderThanDaysAsync(null, 100);
+
+            await app.DataLake.DeleteDirectoryAsync("DeleteOlderThanDays", FolderStructure.Path);
         }
 
         [TestMethod]

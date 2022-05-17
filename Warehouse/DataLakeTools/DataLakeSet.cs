@@ -14,7 +14,8 @@ namespace Bygdrift.DataLakeTools
         /// </summary>
         /// <param name="basePath">If empty, there will not be created a directory.</param>
         /// <param name="folderStructure"></param>
-        public async Task CreateDirectoryAsync(string basePath, FolderStructure folderStructure)
+        /// <returns>The folderPath</returns>
+        public async Task<string> CreateDirectoryAsync(string basePath, FolderStructure folderStructure)
         {
             if (string.IsNullOrEmpty(basePath))
                 throw new ArgumentNullException(nameof(basePath));
@@ -28,6 +29,8 @@ namespace Bygdrift.DataLakeTools
 
             if (!await directory.ExistsAsync())
                 await directory.CreateAsync();
+
+            return directory.Path;
         }
 
         /// <summary>

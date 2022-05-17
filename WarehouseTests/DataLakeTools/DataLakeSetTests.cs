@@ -1,9 +1,6 @@
 using Bygdrift.DataLakeTools;
 using Bygdrift.Warehouse;
-using Bygdrift.Warehouse.Helpers.Logs;
-using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,21 +10,18 @@ using System.Threading.Tasks;
 
 namespace Tests.DataLakeTools
 {
-    /// <summary>
-    /// TODO: Test at sende flere filer med samme filePath på en gang og sørg for at håndtere når den brækker ned!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    /// </summary>
-
     [TestClass]
-    public class DataLakeSetTests
+    public class DataLakeQueueTests
     {
         public static readonly string BasePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..\\..\\..\\"));
         private readonly DataLake dataLake;
         private static AppBase app = new();
 
-        public DataLakeSetTests()
+        public DataLakeQueueTests()
         {
             dataLake = new DataLake(app);
         }
+
 
         [TestMethod]
         public async Task SaveManyParallelStreams()  //There will come errors on concurrent readings. Make sure to get the errors fetched into the log.
@@ -54,7 +48,7 @@ namespace Tests.DataLakeTools
             await dataLake.SaveStreamAsync(stream, "Raw", "test.txt", FolderStructure.Path);
             await dataLake.SaveStreamAsync(stream, "Raw", "test.txt", FolderStructure.Path, true);
             var streamOut = app.DataLake.GetFile("Raw/test.txt").Stream;
-            StreamReader reader = new StreamReader(streamOut); 
+            StreamReader reader = new StreamReader(streamOut);
             var text = reader.ReadToEnd();
             Assert.AreEqual(text, "HejsaHejsa");
         }
@@ -104,5 +98,6 @@ namespace Tests.DataLakeTools
             {
             }
         }
+
     }
 }

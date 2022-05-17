@@ -3,7 +3,7 @@
 	
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<Version>0.7.0</Version>
+		<Version>1.0.1</Version>
 		<Authors>kenboc</Authors>
 		<Company>Bygdrift</Company>
 		<Description>Create Azure App functions to fetch data from an unspecified data source, wash data and ingest to a data lake and a database in Azure. This nuget package handles communication with data lake and database.</Description>
@@ -21,8 +21,15 @@
 		<AssemblyName>Bygdrift.Warehouse</AssemblyName>
 		<RootNamespace>Bygdrift.Warehouse</RootNamespace>
 		<PackageReleaseNotes>
-			Added function to Module.Settings, so its now poosible to add json with the attribute: [ConfigSetting(IsJson = true)].
-			Fixed error: When data is send to MSSQL like fx integer and later gets changed to decimal, there was an error, but it's fixed.
+			Added DataLakeQueue, so now it's easy to send, peek and receive queue messages from the Data Lake.
+
+			Added function to DataLake:
+			- Old data can easily be removed: DeleteDirectoriesOlderThanDaysAsync(string basePath, int equalOrolderThanDays)
+			- Get all directories: GetDirectories(string basePath)
+
+			Added two functions to CsvTools:
+			- A csv can be merged into another csv: FromCsv(Csv mergedCsv, bool createNewUniqueHeaderIfAlreadyExists)
+			- A column with the same data, can be added: AddColumn(string headerName, object value, bool createNewUniqueHeaderIfAlreadyExists)
 		</PackageReleaseNotes>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -40,6 +47,7 @@
 	<ItemGroup>
 		<PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.2.0" />
 		<PackageReference Include="Azure.Storage.Files.DataLake" Version="12.8.0" />
+		<PackageReference Include="Azure.Storage.Queues" Version="12.10.0" />
 		<PackageReference Include="ClosedXML" Version="0.95.4" />
 		<PackageReference Include="ExcelDataReader" Version="3.6.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.0" />

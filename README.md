@@ -43,6 +43,20 @@ All modules can be installed and facilitated with ARM templates(Azure Resource M
 
 # Updates
 
+# 1.0.1
+Added DataLakeQueue, so now it's easy to send, peek and receive queue messages from the Data Lake.
+
+Added function to DataLake:
+- Old data can easily be removed: DeleteDirectoriesOlderThanDaysAsync(string basePath, int equalOrolderThanDays)
+- Get all directories: GetDirectories(string basePath)
+
+Added two functions to CsvTools:
+- A csv can be merged into another csv: FromCsv(Csv mergedCsv, bool createNewUniqueHeaderIfAlreadyExists)
+- A column with the same data, can be added: AddColumn(string headerName, object value, bool createNewUniqueHeaderIfAlreadyExists)
+
+# 1.0.0
+Now so stable, that it's upgraded to production version.
+
 # 0.7.0
 Added function to Module.Settings, so its now poosible to add json with the attribute: [ConfigSetting(IsJson = true)].
 Fixed error: When data is send to MSSQL like fx integer and later gets changed to decimal, there was an error, but it's fixed.
@@ -51,9 +65,7 @@ Fixed error: When data is send to MSSQL like fx integer and later gets changed t
 Added an update to CsvTools, so now it's possible to add a record by giving the header name instead of column number. The function: public Csv AddRecord(int row, string headerName, object value, bool createNewUniqueHeaderIfAlreadyExists = false)
 
 ## 0.6.3
-
 Minor changes.
 
 ## 0.6.2
-
 In 0.6.1, all user settings should have a prefix of 'Setting--'. That has been removed, so when upgrading from 0.6.1, then go to each module, like 'DaluxFM-{resourcegroup.Id()}' > Configuration, and remove the prefixes, so 'Setting--ScheduleImportEstatesAndAssets' becomes 'ScheduleImportEstatesAndAssets'. Secrets in key-vault, will continue to have prefixes like 'Secret--' and 'Secret--{ModuleName}--'.
