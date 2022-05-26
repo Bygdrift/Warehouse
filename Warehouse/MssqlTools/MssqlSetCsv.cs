@@ -60,6 +60,9 @@ namespace Bygdrift.MssqlTools
         /// <returns>Null if no errors or else an array of errors. Errors are also send to AppBase.Log</returns>
         public string[] MergeCsv(Csv csv, string tableName, string primaryKey, bool truncateTable, bool removeEmptyColumns = false)
         {
+            if (csv == null | csv.RowCount == 0)
+                return null;
+
             var errors = new List<string>();
             if (!PrepareData(csv, removeEmptyColumns))
                 return null;
