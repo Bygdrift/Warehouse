@@ -43,7 +43,13 @@ All modules can be installed and facilitated with ARM templates(Azure Resource M
 
 # Updates
 
-# 1.0.1
+## 1.0.3
+Added option to import CSVFile with other delimiters than comma.
+
+## 1.0.2
+Update packages to newest .net6 versione + minor updates
+
+## 1.0.1
 Added DataLakeQueue, so now it's easy to send, peek and receive queue messages from the Data Lake.
 
 Added function to DataLake:
@@ -54,10 +60,10 @@ Added two functions to CsvTools:
 - A csv can be merged into another csv: FromCsv(Csv mergedCsv, bool createNewUniqueHeaderIfAlreadyExists)
 - A column with the same data, can be added: AddColumn(string headerName, object value, bool createNewUniqueHeaderIfAlreadyExists)
 
-# 1.0.0
+## 1.0.0
 Now so stable, that it's upgraded to production version.
 
-# 0.7.0
+## 0.7.0
 Added function to Module.Settings, so its now poosible to add json with the attribute: [ConfigSetting(IsJson = true)].
 Fixed error: When data is send to MSSQL like fx integer and later gets changed to decimal, there was an error, but it's fixed.
 
