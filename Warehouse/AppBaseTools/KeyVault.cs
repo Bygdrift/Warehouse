@@ -6,32 +6,33 @@ using System.Linq;
 
 namespace Bygdrift.Warehouse.AppBaseTools
 {
-    internal class KeyVault
+    /// <summary>The key vault</summary>
+    public class KeyVault
     {
         private List<SecretProperties> _secretProperties;
         private SecretClient _secretClient;
+        private AppBase app;
 
-        public KeyVault(AppBase app) => App = app;
+        /// <summary>Init</summary>
+        public KeyVault(AppBase app) => this.app = app;
 
-        public AppBase App { get; }
-
-        public SecretClient SecretClient
+        private SecretClient SecretClient
         {
             get
             {
                 if (_secretClient == null)  //Inspiration: https://stackoverflow.com/questions/43722030/how-to-get-connection-string-out-of-azure-keyvault/43747891
                 {
-                    var vaultUri = App.Config["VaultUri"];
+                    var vaultUri = app.Config["VaultUri"];
                     if (vaultUri != null)
                         _secretClient = new SecretClient(vaultUri: new Uri(vaultUri), credential: new DefaultAzureCredential());
-                    else if (!App.IsRunningLocal)
+                    else if (!app.IsRunningLocal)
                         throw new Exception("'VaultUri' is not in appSettings. The module has been stopped.");
                 }
                 return _secretClient;
             }
         }
 
-        public List<SecretProperties> SecretProperties
+        private List<SecretProperties> SecretProperties
         {
             get
             {
@@ -48,7 +49,7 @@ namespace Bygdrift.Warehouse.AppBaseTools
                     {
                         if (e.Status == 401)
                         {
-                            if (App.IsRunningLocal)
+                            if (app.IsRunningLocal)
                                 throw new Exception($"You are running local and has set the VaultUri to '{SecretClient.VaultUri}' in apppSettings, so Warehouse is trying to fetch secrets from the vault, but the system does not have authorized access.\n. If running from Visual Studio, you must be logged in with an AAD user from the Azure tenant.", e);
                             else
                                 throw new Exception($"The system does not have authorized access to Azure keyvault: {SecretClient.VaultUri}.", e);
@@ -61,18 +62,19 @@ namespace Bygdrift.Warehouse.AppBaseTools
             }
         }
 
-        internal string GetSecret(string secretName)
+        /// <summary>Get a secret</summary>
+        public string GetSecret(string secretName)
         {
-            var vaultUri = App.Config["VaultUri"];
-            if (App.IsRunningLocal && string.IsNullOrEmpty(vaultUri))  //Then local and the setting vaultUri has not been set:
+            var vaultUri = app.Config["VaultUri"];
+            if (app.IsRunningLocal && string.IsNullOrEmpty(vaultUri))  //Then local and the setting vaultUri has not been set:
             {
-                var res = App.Config[secretName];
+                var res = app.Config[secretName];
                 if (res != null)
                     return res;
 
                 //Look if the secret is saved as a normal setting. And thats okay because there cannot be a secret and a setting with the same name
                 //So if "Secret--Module--DataLake", then look if it is saved as a setting: "DataLake":
-                return App.Config[secretName.Split("--").Last()];
+                return app.Config[secretName.Split("--").Last()];
             }
 
             if (SecretProperties != null && SecretProperties.Any(o => o.Name == secretName))
@@ -82,6 +84,26 @@ namespace Bygdrift.Warehouse.AppBaseTools
             }
 
             return null;
+        }
+
+        /// <summary>Get all secrets</summary>
+        public Dictionary<string, object> GetSecrets()
+        {
+            var res = new Dictionary<string, object>();
+            var vaultUri = app.Config["VaultUri"];
+            if (app.IsRunningLocal && string.IsNullOrEmpty(vaultUri))  //Then local and the setting vaultUri has not been set:
+            {
+                Microsoft.Extensions.Configuration.IConfigurationRoot g = app.Config;
+                var data = g.GetChildren().Where(o=> o.Key.StartsWith("Secret--"));
+                if(data.Any())
+                    foreach (var item in data)
+                        res.Add(item.Key, item.Value);
+            }
+            else if (SecretProperties != null)
+                foreach (var item in SecretProperties)
+                    res.Add(item.Name, SecretClient.GetSecret(item.Name));
+
+            return res;
         }
     }
 }

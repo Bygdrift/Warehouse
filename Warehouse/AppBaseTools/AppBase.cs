@@ -7,9 +7,6 @@ using Bygdrift.MssqlTools;
 using Bygdrift.Warehouse.Helpers.Logs;
 using Bygdrift.Warehouse.Helpers.Attributes;
 using System.IO;
-using Azure.Security.KeyVault.Secrets;
-using Azure.Identity;
-using System.Collections.Generic;
 using Bygdrift.Warehouse.AppBaseTools;
 
 namespace Bygdrift.Warehouse
@@ -67,7 +64,7 @@ namespace Bygdrift.Warehouse
         private Mssql _mssql;
         private string _mssqlConnectionString;
         private bool? _isRunningLocal;
-        internal KeyVault KeyVault;
+        private KeyVault _keyVault;
 
         /// <summary>
         /// The core for distributing config settings and dataLake- and database connections
@@ -77,7 +74,7 @@ namespace Bygdrift.Warehouse
             Log = logger != null ? new Log(logger) : new Log();
             _loadedUtc = DateTime.Now.ToUniversalTime();
             _loadedLocal = ToLocalTime(_loadedUtc);
-            KeyVault = new KeyVault(this);
+            //KeyVault = new KeyVault(this);
         }
 
         /// <summary>
@@ -102,6 +99,11 @@ namespace Bygdrift.Warehouse
         /// Link to Bygdrift dataLake tools for reading and writing. 
         /// </summary>
         public DataLake DataLake { get { return _dataLake ??= new DataLake(this); } }
+
+        /// <summary>
+        /// Link to Bygdrift Key Vault for reading. 
+        /// </summary>
+        public KeyVault KeyVault { get { return _keyVault ??= new KeyVault(this); } }
 
         /// <summary>
         /// Link to Bygdrift dataLake tools for reading and writing. 

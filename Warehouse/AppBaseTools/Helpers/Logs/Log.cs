@@ -192,7 +192,7 @@ namespace Bygdrift.Warehouse.Helpers.Logs
         }
 
         /// <summary>
-        /// Create a log critical
+        /// Create a log critical. This also throws an error
         /// </summary>
         /// <param name="message"></param>
         /// <param name="args"></param>
@@ -204,6 +204,7 @@ namespace Bygdrift.Warehouse.Helpers.Logs
             _logs.Add(log);
             Debug.WriteLine("Critical: " + log.Message);
             Logger?.LogCritical(log.Message);
+            throw new Exception($"App log has thrown a critical error and stops. The error: {log.Message}");
         }
 
         /// <summary>

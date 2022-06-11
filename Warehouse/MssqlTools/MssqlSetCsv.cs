@@ -35,7 +35,7 @@ namespace Bygdrift.MssqlTools
                 if (truncateTable)
                     TruncateTable(tableName);
 
-                if (csv.RowLimit.Max < 100)
+                if (csv.ColCount * csv.RowCount < 2000)
                     Connection.InsertAll($"[{App.ModuleName}].[{tableName}]", data, csv.RowLimit.Max, commandTimeout: 3600);
                 else
                     Connection.BulkInsert($"[{App.ModuleName}].[{tableName}]", data, bulkCopyTimeout: 3600);
@@ -108,7 +108,7 @@ namespace Bygdrift.MssqlTools
         /// <returns>False if there is no content</returns>
         private static bool PrepareData(Csv csv, bool removeEmptyColumns)
         {
-            csv.UniqueHeadersIgnoreCase(true);
+            //csv.UniqueHeadersIgnoreCase(true);
             if (removeEmptyColumns)
                 csv.RemoveEmptyColumns();
 

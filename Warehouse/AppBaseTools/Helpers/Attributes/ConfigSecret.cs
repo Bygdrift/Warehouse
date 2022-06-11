@@ -63,10 +63,10 @@ namespace Bygdrift.Warehouse.Helpers.Attributes
                 if (NotSet == NotSet.ShowLogWarning)
                     app.Log.LogWarning($"Key vault secret '{secretName}' has not been set. {ErrorMessage}");
 
-                if (Default != null && CsvTools.Csv.RecordToType(prop.PropertyType, Default, out object res))
+                if (Default != null && Bygdrift.CsvTools.Csv.RecordToType(prop.PropertyType, Default, out object res))
                     prop.SetValue(settings, res);
             }
-            else if (CsvTools.Csv.RecordToType(prop.PropertyType, secret, out object res))
+            else if (Bygdrift.CsvTools.Csv.RecordToType(prop.PropertyType, secret, out object res))
                 prop.SetValue(settings, res);
         }
     }

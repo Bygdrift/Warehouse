@@ -43,11 +43,15 @@ All modules can be installed and facilitated with ARM templates(Azure Resource M
 
 # Updates
 
+## 1.0.4
+Added ability to handle Culture in CSV with new Csv().Culture();
+Better to pinpoint the type of a string date in the CSV. So a column containing ex '2022-11-20' or '20-11-2022' and so on, are now better recognized.
+
 ## 1.0.3
 Added option to import CSVFile with other delimiters than comma.
 
 ## 1.0.2
-Update packages to newest .net6 versione + minor updates
+Update packages to newest .net6 version + minor updates
 
 ## 1.0.1
 Added DataLakeQueue, so now it's easy to send, peek and receive queue messages from the Data Lake.

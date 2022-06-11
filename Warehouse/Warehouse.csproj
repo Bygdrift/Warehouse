@@ -21,7 +21,7 @@
 		<AssemblyName>Bygdrift.Warehouse</AssemblyName>
 		<RootNamespace>Bygdrift.Warehouse</RootNamespace>
 		<PackageReleaseNotes>
-			Added option to import CSVFile with other delimiters than comma.
+			Minor change
 		</PackageReleaseNotes>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -52,10 +52,6 @@
 
 	<ItemGroup>
 		<None Include="icon.png" Pack="true" PackagePath="\" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Folder Include="CsvTools\" />
 	</ItemGroup>
 
 </Project>
