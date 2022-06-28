@@ -47,6 +47,7 @@ namespace Bygdrift.Warehouse.Helpers.Attributes
 
         internal void GetData<TSettings>(AppBase app, PropertyInfo prop, TSettings settings)
         {
+            var csv = new CsvTools.Csv();
             var secretName = $"Secret--{app.ModuleName}--{prop.Name}";
             var secret = app.KeyVault.GetSecret(secretName);
             if (secret == null)
@@ -63,10 +64,10 @@ namespace Bygdrift.Warehouse.Helpers.Attributes
                 if (NotSet == NotSet.ShowLogWarning)
                     app.Log.LogWarning($"Key vault secret '{secretName}' has not been set. {ErrorMessage}");
 
-                if (Default != null && Bygdrift.CsvTools.Csv.RecordToType(prop.PropertyType, Default, out object res))
+                if (Default != null && csv.RecordToType(prop.PropertyType, Default, out object res))
                     prop.SetValue(settings, res);
             }
-            else if (Bygdrift.CsvTools.Csv.RecordToType(prop.PropertyType, secret, out object res))
+            else if (csv.RecordToType(prop.PropertyType, secret, out object res))
                 prop.SetValue(settings, res);
         }
     }
