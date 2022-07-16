@@ -3,11 +3,11 @@ using System.Linq;
 using Bygdrift.DataLakeTools;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Bygdrift.MssqlTools;
+using Bygdrift.Tools.MssqlTool;
 using Bygdrift.Warehouse.Helpers.Attributes;
 using System.IO;
 using Bygdrift.Warehouse.AppBaseTools;
-using Bygdrift.LogTools;
+using Bygdrift.Tools.LogTool;
 
 namespace Bygdrift.Warehouse
 {
