@@ -23,11 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Files\Csv\Export\" />
-    <Folder Include="Files\Excel\Export\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Warehouse\Warehouse.csproj" />
   </ItemGroup>
 

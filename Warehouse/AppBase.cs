@@ -6,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using Bygdrift.Tools.MssqlTool;
 using Bygdrift.Warehouse.Helpers.Attributes;
 using System.IO;
-using Bygdrift.Warehouse.AppBaseTools;
 using Bygdrift.Tools.LogTool;
 
 namespace Bygdrift.Warehouse
