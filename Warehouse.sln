@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CsvTool", "Submodules\Bygdr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MssqlTool", "Submodules\Bygdrift.Tools.MssqlTool\MssqlTool\MssqlTool.csproj", "{8F69EA51-249E-4BA0-B2A3-16C112906BFC}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataLakeTool", "Submodules\Bygdrift.Tools.DataLakeTool\DataLakeTool\DataLakeTool.csproj", "{0637A9B4-5426-4C6B-9391-19C30F27054F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{8F69EA51-249E-4BA0-B2A3-16C112906BFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F69EA51-249E-4BA0-B2A3-16C112906BFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F69EA51-249E-4BA0-B2A3-16C112906BFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0637A9B4-5426-4C6B-9391-19C30F27054F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0637A9B4-5426-4C6B-9391-19C30F27054F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0637A9B4-5426-4C6B-9391-19C30F27054F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0637A9B4-5426-4C6B-9391-19C30F27054F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -49,6 +55,7 @@ Global
 		{2CC730F4-2475-4F88-A05C-BE88CAAB12AC} = {A004C260-BEEF-4618-B045-C5B0AA947B55}
 		{AA66DA3B-8DD0-4962-B99C-6C20CDA3BE8B} = {A004C260-BEEF-4618-B045-C5B0AA947B55}
 		{8F69EA51-249E-4BA0-B2A3-16C112906BFC} = {A004C260-BEEF-4618-B045-C5B0AA947B55}
+		{0637A9B4-5426-4C6B-9391-19C30F27054F} = {A004C260-BEEF-4618-B045-C5B0AA947B55}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {23482D47-3B23-4797-B387-6D7E31F688C7}

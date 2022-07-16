@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using Bygdrift.DataLakeTools;
+using Bygdrift.Tools.DataLakeTool;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Bygdrift.Tools.MssqlTool;
@@ -98,7 +98,7 @@ namespace Bygdrift.Warehouse
         /// <summary>
         /// Link to Bygdrift dataLake tools for reading and writing. 
         /// </summary>
-        public DataLake DataLake { get { return _dataLake ??= new DataLake(this); } }
+        public DataLake DataLake { get { return _dataLake ??= new DataLake(DataLakeConnectionString, ModuleName, Log, LoadedLocal); } }
 
         /// <summary>
         /// Link to Bygdrift Key Vault for reading. 
@@ -108,7 +108,7 @@ namespace Bygdrift.Warehouse
         /// <summary>
         /// Link to Bygdrift dataLake tools for reading and writing. 
         /// </summary>
-        public DataLakeQueue DataLakeQueue { get { return _dataLakeQueue ??= new DataLakeQueue(this); } }
+        public DataLakeQueue DataLakeQueue { get { return _dataLakeQueue ??= new DataLakeQueue(DataLakeConnectionString, ModuleName, Log); } }
 
         internal string DataLakeConnectionString
         {

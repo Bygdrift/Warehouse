@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Bygdrift.Tools.CsvTool;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -47,7 +48,7 @@ namespace Bygdrift.Warehouse.Helpers.Attributes
 
         internal void GetData<TSettings>(AppBase app, PropertyInfo prop, TSettings settings)
         {
-            var csv = new CsvTools.Csv();
+            var csv = new Csv();
             var secretName = $"Secret--{app.ModuleName}--{prop.Name}";
             var secret = app.KeyVault.GetSecret(secretName);
             if (secret == null)

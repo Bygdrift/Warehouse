@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Bygdrift.Tools.CsvTool;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -99,7 +100,7 @@ namespace Bygdrift.Warehouse.Helpers.Attributes
             if (NotSet == NotSet.ShowLogWarning)
                 app.Log.LogWarning($"App setting '{property.Name}' has not been set. {ErrorMessage}");
 
-            if (Default != null && new CsvTools.Csv().RecordToType(IsJson ? typeof(string) : property.PropertyType, Default, out object res))
+            if (Default != null && new Csv().RecordToType(IsJson ? typeof(string) : property.PropertyType, Default, out object res))
                 return res;
 
             return null;

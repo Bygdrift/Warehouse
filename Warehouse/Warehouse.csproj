@@ -47,6 +47,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Submodules\Bygdrift.Tools.CsvTool\CsvTool\CsvTool.csproj" />
+	  <ProjectReference Include="..\Submodules\Bygdrift.Tools.DataLakeTool\DataLakeTool\DataLakeTool.csproj" />
 	  <ProjectReference Include="..\Submodules\Bygdrift.Tools.LogTool\LogTool\LogTool.csproj" />
 	  <ProjectReference Include="..\Submodules\Bygdrift.Tools.MssqlTool\MssqlTool\MssqlTool.csproj" />
 	</ItemGroup>
