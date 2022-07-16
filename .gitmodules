@@ -7,3 +7,6 @@
 [submodule "Submodules/Bygdrift.Tools.MssqlTool"]
 	path = Submodules/Bygdrift.Tools.MssqlTool
 	url = https://github.com/Bygdrift/Tools.MssqlTool
+[submodule "Submodules/Bygdrift.Tools.DataLakeTool"]
+	path = Submodules/Bygdrift.Tools.DataLakeTool
+	url = https://github.com/Bygdrift/Tools.DataLakeTool
