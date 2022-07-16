@@ -1,9 +1,0 @@
-[submodule "CsvTools"]
-	path = CsvTools
-	url = https://github.com/Bygdrift/CsvTools
-[submodule "MssqlTools"]
-	path = MssqlTools
-	url = https://github.com/Bygdrift/MssqlTools
-[submodule "LogTools"]
-	path = LogTools
-	url = https://github.com/Bygdrift/LogTools

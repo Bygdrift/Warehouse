@@ -1,5 +1,4 @@
-﻿using Azure;
-using Azure.Storage.Files.DataLake;
+﻿using Azure.Storage.Files.DataLake;
 using Azure.Storage.Files.DataLake.Models;
 using Bygdrift.CsvTools;
 using Newtonsoft.Json;

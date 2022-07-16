@@ -1,7 +1,6 @@
 using Azure.Storage.Queues;
 using Bygdrift.DataLakeTools;
 using Bygdrift.Warehouse;
-using Bygdrift.Warehouse.Helpers.Logs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;

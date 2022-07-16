@@ -4,10 +4,10 @@ using Bygdrift.DataLakeTools;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Bygdrift.MssqlTools;
-using Bygdrift.Warehouse.Helpers.Logs;
 using Bygdrift.Warehouse.Helpers.Attributes;
 using System.IO;
 using Bygdrift.Warehouse.AppBaseTools;
+using Bygdrift.LogTools;
 
 namespace Bygdrift.Warehouse
 {
@@ -231,7 +231,7 @@ namespace Bygdrift.Warehouse
         {
             get
             {
-                _mssql ??= new Mssql(this);
+                _mssql ??= new Mssql(MssqlConnectionString, ModuleName, Log);
                 return _mssql;
             }
         }
