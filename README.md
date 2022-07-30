@@ -43,6 +43,11 @@ All modules can be installed and facilitated with ARM templates(Azure Resource M
 
 # Updates
 
+## 1.1.0
+Decentralized this library, so it now refers to Nuget packages DataLakeTool, LogTool, MssqTool, CsvTool instead of having all this inside of one big library.
+The mentined libraries are put out on GitHub with good documentation.
+This summer, I have focused on the MssqlTool and added quite a lot of unit testing, to stabilize the transactions from CSV to database.
+
 ## 1.0.4
 Added ability to handle Culture in CSV with new Csv().Culture();
 Better to pinpoint the type of a string date in the CSV. So a column containing ex '2022-11-20' or '20-11-2022' and so on, are now better recognized.

@@ -4,7 +4,7 @@ using Bygdrift.Tools.DataLakeTool;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Bygdrift.Tools.MssqlTool;
-using Bygdrift.Warehouse.Helpers.Attributes;
+using Bygdrift.Warehouse.Attributes;
 using System.IO;
 using Bygdrift.Tools.LogTool;
 

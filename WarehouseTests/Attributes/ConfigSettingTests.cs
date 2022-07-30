@@ -1,21 +1,21 @@
 ﻿using Bygdrift.Warehouse;
-using Bygdrift.Warehouse.Helpers.Attributes;
+using Bygdrift.Warehouse.Attributes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace WarehouseTests
+namespace WarehouseTests.Attributes
 {
     [TestClass]
-    public class AppBaseTests
+    public class ConfigSettingTests
     {
         [TestMethod]
-        public void LoadSettings_MissingVitalSetting()
+        public void MissingVitalSetting()
         {
             try
             {
-                var app = new AppBase<TestConfigSettingsThrowError>();
+                var app = new AppBase<Settings_ThrowError>();
                 Assert.Fail("No exception thrown");
             }
             catch (Exception ex)
@@ -25,9 +25,9 @@ namespace WarehouseTests
         }
 
         [TestMethod]
-        public void LoadSettings_MissingNonVitalSetting()
+        public void MissingNonVitalSetting()
         {
-            var app = new AppBase<TestConfigSettingsThrowLogError>();
+            var app = new AppBase<Settings_ThrowLogError>();
             var errors = app.Log.GetErrorsAndCriticals().ToList();
             Assert.AreEqual(1, errors.Count);
             Assert.AreEqual(errors.First(), "App setting 'IsMissing_HasNoMissingAttribute' has not been set. Thats not good");
@@ -35,33 +35,33 @@ namespace WarehouseTests
         }
 
         [TestMethod]
-        public void LoadSettings_ReadJson()
+        public void ReadJson()
         {
-            var app = new AppBase<TestReadJson>();
+            var app = new AppBase<Settings_ReadJson>();
             var res = app.Settings.TestOperators;
             Assert.IsTrue(res.Count == 2);
         }
     }
 
-    public class TestReadJson
+    public class Settings_ReadJson
     {
         [ConfigSetting(IsJson = true, Default = "[{\"Id\":1209, \"AreaNumbers\":[3400,2,3]},{\"Id\":1209, \"AreaNumbers\":[3400,2,3]}]")]
-        public List<Operator> TestOperators { get; set; }
+        public List<JsonModel> TestOperators { get; set; }
     }
 
-    public class TestConfigSettingsThrowLogError
+    public class Settings_ThrowLogError
     {
         [ConfigSetting(NotSet = NotSet.ShowLogError, ErrorMessage = "Thats not good", Default = "7")]
         public int IsMissing_HasNoMissingAttribute { get; set; }
     }
 
-    public class TestConfigSettingsThrowError
+    public class Settings_ThrowError
     {
         [ConfigSetting(NotSet = NotSet.ThrowError, ErrorMessage = "Thats not good")]
         public string IsMissing_HasMissingAttribute { get; set; }
     }
 
-    public class Operator
+    public class JsonModel
     {
         public int Id { get; set; }
 

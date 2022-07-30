@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace Bygdrift.Warehouse.Helpers.Attributes
+namespace Bygdrift.Warehouse.Attributes
 {
     /// <summary>
     /// Loads data from AppSettings with the same name as the propertis in thes class. Case is ignored, so it can be written in camelCase and PascalCase.

@@ -1,4 +1,4 @@
-﻿namespace Bygdrift.Warehouse.Helpers.Attributes
+﻿namespace Bygdrift.Warehouse.Attributes
 {
     /// <summary>
     /// How to handle if a setting or secret are not set
