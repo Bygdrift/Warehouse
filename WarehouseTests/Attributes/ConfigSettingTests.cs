@@ -35,6 +35,17 @@ namespace WarehouseTests.Attributes
         }
 
         [TestMethod]
+        public void ReadSecret()
+        {
+            var app = new AppBase<Settings_ReadSecret>();
+            var a = app.Settings.SecretTest;
+            var errors = app.Log.GetErrorsAndCriticals().ToList();
+            //Assert.AreEqual(1, errors.Count);
+            //Assert.AreEqual(errors.First(), "App setting 'IsMissing_HasNoMissingAttribute' has not been set. Thats not good");
+            Assert.AreEqual(8, app.Settings.SecretTest);
+        }
+
+        [TestMethod]
         public void ReadJson()
         {
             var app = new AppBase<Settings_ReadJson>();
@@ -59,6 +70,12 @@ namespace WarehouseTests.Attributes
     {
         [ConfigSetting(NotSet = NotSet.ThrowError, ErrorMessage = "Thats not good")]
         public string IsMissing_HasMissingAttribute { get; set; }
+    }
+
+    public class Settings_ReadSecret
+    {
+        [ConfigSecret(NotSet = NotSet.DoNothing, Default = "7")]
+        public int SecretTest { get; set; }
     }
 
     public class JsonModel

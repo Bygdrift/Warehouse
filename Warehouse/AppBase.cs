@@ -176,6 +176,7 @@ namespace Bygdrift.Warehouse
             {
                 _loadedUtc = value;
                 _loadedLocal = ToLocalTime(_loadedLocal);
+                DataLake.LocalTime = _loadedLocal;
             }
         }
 
@@ -191,6 +192,7 @@ namespace Bygdrift.Warehouse
             {
                 _loadedLocal = value;
                 _loadedUtc = _loadedLocal.ToUniversalTime();
+                DataLake.LocalTime = _loadedLocal;
             }
         }
 
