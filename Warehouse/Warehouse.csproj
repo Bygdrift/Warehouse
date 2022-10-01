@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">	
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<Version>1.2.1</Version>
+		<Version>1.2.2</Version>
 		<Authors>kenboc</Authors>
 		<Company>Bygdrift</Company>
 		<Description>Create Azure App functions to fetch data from an unspecified data source, wash data and ingest to a data lake and a database in Azure. This nuget package handles communication with data lake and database.</Description>
@@ -26,6 +26,7 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 
+	<!--Warehouse-->
 	<ItemGroup>
 		<PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.3.0" />
 		<PackageReference Include="Azure.Storage.Files.DataLake" Version="12.10.0" />
@@ -41,57 +42,75 @@
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 		<PackageReference Include="RepoDb.SqlServer.BulkOperations" Version="1.1.6" />
 	</ItemGroup>
-
-	<!--For testing-->
-	<!--<ItemGroup>
-		--><!--DataLake--><!--
-		<Reference Include="Bygdrift.Tools.CsvTool">
-		  <HintPath>..\..\Tools\CsvTool\CsvTool\bin\Debug\net6.0\Bygdrift.Tools.CsvTool.dll</HintPath>
-		</Reference>
-		<Reference Include="Bygdrift.Tools.DataLakeTool">
-			<HintPath>..\..\Tools\DataLakeTool\DataLakeTool\bin\Debug\net6.0\Bygdrift.Tools.DataLakeTool.dll</HintPath>
-		</Reference>
-		<PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.3.0" />
+	
+	<!--Tools-->
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+		<PackageReference Include="ClosedXML" Version="0.95.4" />
+		<PackageReference Include="ExcelDataReader" Version="3.6.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 		<PackageReference Include="Azure.Storage.Files.DataLake" Version="12.10.0" />
 		<PackageReference Include="Azure.Storage.Queues" Version="12.10.0" />
-		--><!--<PackageReference Include="Bygdrift.Tools.DataLakeTool" Version="1.0.0-alpha" />--><!--
-		--><!--<PackageReference Include="Bygdrift.Tools.MssqlTool" Version="1.0.0-alpha.1" />--><!--
-		<PackageReference Include="ClosedXML" Version="0.95.4" />
-		<PackageReference Include="ExcelDataReader" Version="3.6.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
 		<PackageReference Include="RepoDb.SqlServer.BulkOperations" Version="1.1.6" />
-		--><!--LogtTool--><!--
-		<Reference Include="Bygdrift.Tools.LogTool">
-			<HintPath>..\..\Tools\LogTool\LogTool\bin\Debug\net6.0\Bygdrift.Tools.LogTool.dll</HintPath>
-		</Reference>
-		--><!--MssqlTool--><!--
-		<Reference Include="Bygdrift.Tools.MssqlTool">
-			<HintPath>..\..\Tools\MssqlTool\MssqlTool\bin\Debug\net6.0\Bygdrift.Tools.MssqlTool.dll</HintPath>
-		</Reference>
-		--><!--<PackageReference Include="Bygdrift.Tools.LogTool" Version="0.9.1" />--><!--
-		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-		<PackageReference Include="RepoDb.SqlServer.BulkOperations" Version="1.1.6" />
-		--><!--CsvTool--><!--
-		<PackageReference Include="ClosedXML" Version="0.95.4" />
-		<PackageReference Include="ExcelDataReader" Version="3.6.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-	</ItemGroup>-->
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\Config.cs" Link="Tools\CsvTool\Config.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\Csv.cs" Link="Tools\CsvTool\Csv.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\CsvExport.cs" Link="Tools\CsvTool\CsvExport.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\CsvFilter.cs" Link="Tools\CsvTool\CsvFilter.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\CsvGet.cs" Link="Tools\CsvTool\CsvGet.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\CsvImport.cs" Link="Tools\CsvTool\CsvImport.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\CsvSet.cs" Link="Tools\CsvTool\CsvSet.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\CsvUpdate.cs" Link="Tools\CsvTool\CsvUpdate.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\CsvValue.cs" Link="Tools\CsvTool\CsvValue.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\Helpers\DateHelper.cs" Link="Tools\CsvTool\Helpers\DateHelper.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\Helpers\FormatKind.cs" Link="Tools\CsvTool\Helpers\FormatKind.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\TimeStacking\Helpers\SpanArray.cs" Link="Tools\CsvTool\TimeStacking\Helpers\SpanArray.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\TimeStacking\Helpers\TimeStackAddCols.cs" Link="Tools\CsvTool\TimeStacking\Helpers\TimeStackAddCols.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\TimeStacking\Helpers\TimeStackBuilder.cs" Link="Tools\CsvTool\TimeStacking\Helpers\TimeStackBuilder.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\TimeStacking\Models\CsvColumn.cs" Link="Tools\CsvTool\TimeStacking\Models\CsvColumn.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\TimeStacking\Models\CsvColumnType.cs" Link="Tools\CsvTool\TimeStacking\Models\CsvColumnType.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\TimeStacking\Models\FromTo.cs" Link="Tools\CsvTool\TimeStacking\Models\FromTo.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\TimeStacking\Models\Row.cs" Link="Tools\CsvTool\TimeStacking\Models\Row.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\TimeStacking\Models\Span.cs" Link="Tools\CsvTool\TimeStacking\Models\Span.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\TimeStacking\Models\SpanRow.cs" Link="Tools\CsvTool\TimeStacking\Models\SpanRow.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\TimeStacking\Models\StackHeader.cs" Link="Tools\CsvTool\TimeStacking\Models\StackHeader.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\TimeStacking\Models\TimePartition.cs" Link="Tools\CsvTool\TimeStacking\Models\TimePartition.cs" />
+		<Compile Include="..\..\Tools\CsvTool\CsvTool\TimeStacking\TimeStack.cs" Link="Tools\CsvTool\TimeStacking\TimeStack.cs" />
+		<Compile Include="..\..\Tools\DataLakeTool\DataLakeTool\DataLake.cs" Link="Tools\DataLakeTool\DataLake.cs" />
+		<Compile Include="..\..\Tools\DataLakeTool\DataLakeTool\DataLakeDelete.cs" Link="Tools\DataLakeTool\DataLakeDelete.cs" />
+		<Compile Include="..\..\Tools\DataLakeTool\DataLakeTool\DataLakeGet.cs" Link="Tools\DataLakeTool\DataLakeGet.cs" />
+		<Compile Include="..\..\Tools\DataLakeTool\DataLakeTool\DataLakeQueue.cs" Link="Tools\DataLakeTool\DataLakeQueue.cs" />
+		<Compile Include="..\..\Tools\DataLakeTool\DataLakeTool\DataLakeSet.cs" Link="Tools\DataLakeTool\DataLakeSet.cs" />
+		<Compile Include="..\..\Tools\LogTool\LogTool\Log.cs" Link="Tools\LogTool\Log.cs" />
+		<Compile Include="..\..\Tools\LogTool\LogTool\LogGet.cs" Link="Tools\LogTool\LogGet.cs" />
+		<Compile Include="..\..\Tools\LogTool\LogTool\LogSet.cs" Link="Tools\LogTool\LogSet.cs" />
+		<Compile Include="..\..\Tools\LogTool\LogTool\Models\Caller.cs" Link="Tools\LogTool\Models\Caller.cs" />
+		<Compile Include="..\..\Tools\LogTool\LogTool\Models\CallerPath.cs" Link="Tools\LogTool\Models\CallerPath.cs" />
+		<Compile Include="..\..\Tools\LogTool\LogTool\Models\LogModel.cs" Link="Tools\LogTool\Models\LogModel.cs" />
+		<Compile Include="..\..\Tools\LogTool\LogTool\Models\LogType.cs" Link="Tools\LogTool\Models\LogType.cs" />
+		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\Helpers\PrepareTableForCsv.cs" Link="Tools\MssqlTool\Helpers\PrepareTableForCsv.cs" />
+		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\Helpers\Sql.cs" Link="Tools\MssqlTool\Helpers\Sql.cs" />
+		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\Models\Change.cs" Link="Tools\MssqlTool\Models\Change.cs" />
+		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\Models\ChangePrimaryKey.cs" Link="Tools\MssqlTool\Models\ChangePrimaryKey.cs" />
+		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\Models\ColumnType.cs" Link="Tools\MssqlTool\Models\ColumnType.cs" />
+		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\Models\SqlType.cs" Link="Tools\MssqlTool\Models\SqlType.cs" />
+		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\Mssql.cs" Link="Tools\MssqlTool\Mssql.cs" />
+		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\MssqlDelete.cs" Link="Tools\MssqlTool\MssqlDelete.cs" />
+		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\MssqlGet.cs" Link="Tools\MssqlTool\MssqlGet.cs" />
+		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\MssqlSet.cs" Link="Tools\MssqlTool\MssqlSet.cs" />
+		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\MssqlSetCsv.cs" Link="Tools\MssqlTool\MssqlSetCsv.cs" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<None Include="icon.png" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\..\Tools\DataLakeTool\DataLakeTool\DataLakeTool.csproj" />
-	  <ProjectReference Include="..\..\Tools\MssqlTool\MssqlTool\MssqlTool.csproj" />
-	</ItemGroup>
-	
 </Project>

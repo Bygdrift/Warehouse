@@ -7,6 +7,7 @@ using Bygdrift.Tools.MssqlTool;
 using Bygdrift.Warehouse.Attributes;
 using System.IO;
 using Bygdrift.Tools.LogTool;
+using System.Globalization;
 
 namespace Bygdrift.Warehouse
 {
@@ -50,6 +51,7 @@ namespace Bygdrift.Warehouse
     /// </summary>
     public class AppBase
     {
+        private CultureInfo _cultureInfo;
         private IConfigurationRoot _config;
         private DataLake _dataLake;
         private DataLakeQueue _dataLakeQueue;
@@ -64,6 +66,8 @@ namespace Bygdrift.Warehouse
         private string _mssqlConnectionString;
         private bool? _isRunningLocal;
         private KeyVault _keyVault;
+        private TimeZoneInfo _timeZoneInfo;
+
 
         /// <summary>
         /// The core for distributing config settings and dataLake- and database connections
@@ -92,6 +96,23 @@ namespace Bygdrift.Warehouse
                      .AddEnvironmentVariables()
                      .Build();
             }
+        }
+
+        /// <summary>
+        /// Current culture
+        /// </summary>
+        public CultureInfo CultureInfo
+        {
+            get
+            {
+                if (_cultureInfo == null)
+                {
+                    var cultureName = Config["CultureName"];
+                    _cultureInfo = cultureName != null ? CultureInfo.CreateSpecificCulture(cultureName) : CultureInfo.InvariantCulture;
+                }
+                return _cultureInfo;
+            }
+            set { _cultureInfo = value; }
         }
 
         /// <summary>
@@ -252,6 +273,28 @@ namespace Bygdrift.Warehouse
         }
 
         /// <summary>
+        /// Like: 'Romance Standard Time'. Get timeZoneId from here: https://raw.githubusercontent.com/Bygdrift/Warehouse/master/Docs/TimeZoneIds.csv
+        /// If AppSetting "TimeZoneId" is not set, then standard is set to 'GMT Standard Time'.
+        /// </summary>
+        public TimeZoneInfo TimeZoneInfo
+        {
+            get
+            {
+                if (_timeZoneInfo == null)
+                {
+                    var timeZoneId = Config["TimeZoneId"];
+                    if(timeZoneId != null)
+                        _timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
+                    else
+                        _timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
+
+                }
+                return _timeZoneInfo;
+            }
+            set { _timeZoneInfo = value; }
+        }
+
+        /// <summary>
         /// Converts a date to localTime if the AppSetting "TimeZoneId" is set. If not, then universalTime will be returned.
         /// Se all TimeZoneId's here: http://www.xiirus.net/articles/article-_net-convert-datetime-from-one-timezone-to-another-7e44y.aspx
         /// </summary>
@@ -259,9 +302,7 @@ namespace Bygdrift.Warehouse
         {
             var utc = dateTime.ToUniversalTime();
             var timeZoneId = Config["TimeZoneId"];
-            if (timeZoneId == null)
-                Log.LogInformation($"The appSetting: 'TimeZoneId' is missing and time and date, will be returned in universal time.");
-            else
+            if (timeZoneId != null)
             {
                 try
                 {
