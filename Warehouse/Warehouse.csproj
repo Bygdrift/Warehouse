@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<Version>1.2.2</Version>
+		<Version>1.2.5</Version>
 		<Authors>kenboc</Authors>
 		<Company>Bygdrift</Company>
 		<Description>Create Azure App functions to fetch data from an unspecified data source, wash data and ingest to a data lake and a database in Azure. This nuget package handles communication with data lake and database.</Description>
@@ -20,7 +20,7 @@
 		<AssemblyName>Bygdrift.Warehouse</AssemblyName>
 		<RootNamespace>Bygdrift.Warehouse</RootNamespace>
 		<PackageReleaseNotes>
-			Minor update of csvTool
+			Added posibility to use models in the Mssql-module
 		</PackageReleaseNotes>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -31,8 +31,6 @@
 		<PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.3.0" />
 		<PackageReference Include="Azure.Storage.Files.DataLake" Version="12.10.0" />
 		<PackageReference Include="Azure.Storage.Queues" Version="12.10.0" />
-		<!--<PackageReference Include="Bygdrift.Tools.DataLakeTool" Version="1.0.1" />-->
-		<!--<PackageReference Include="Bygdrift.Tools.MssqlTool" Version="1.0.1" />-->
 		<PackageReference Include="ClosedXML" Version="0.95.4" />
 		<PackageReference Include="ExcelDataReader" Version="3.6.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
@@ -43,7 +41,7 @@
 		<PackageReference Include="RepoDb.SqlServer.BulkOperations" Version="1.1.6" />
 	</ItemGroup>
 	
-	<!--Tools-->
+	<!--All th librarys used by Bygdrift.Tools-->
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
 		<PackageReference Include="ClosedXML" Version="0.95.4" />
@@ -60,6 +58,7 @@
 		<PackageReference Include="RepoDb.SqlServer.BulkOperations" Version="1.1.6" />
 	</ItemGroup>
 
+	<!--This is all the files from Bygdrift.Tools.DataLakeTool and from Bygdrift.Tools.MssqlTool-->
 	<ItemGroup>
 		<Compile Include="..\..\Tools\CsvTool\CsvTool\Config.cs" Link="Tools\CsvTool\Config.cs" />
 		<Compile Include="..\..\Tools\CsvTool\CsvTool\Csv.cs" Link="Tools\CsvTool\Csv.cs" />
@@ -107,6 +106,7 @@
 		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\MssqlGet.cs" Link="Tools\MssqlTool\MssqlGet.cs" />
 		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\MssqlSet.cs" Link="Tools\MssqlTool\MssqlSet.cs" />
 		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\MssqlSetCsv.cs" Link="Tools\MssqlTool\MssqlSetCsv.cs" />
+		<Compile Include="..\..\Tools\MssqlTool\MssqlTool\MssqlSetModel.cs" Link="Tools\MssqlTool\MssqlSetModel.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

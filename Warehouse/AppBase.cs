@@ -8,6 +8,7 @@ using Bygdrift.Warehouse.Attributes;
 using System.IO;
 using Bygdrift.Tools.LogTool;
 using System.Globalization;
+using Bygdrift.Tools.CsvTool;
 
 namespace Bygdrift.Warehouse
 {
@@ -51,6 +52,7 @@ namespace Bygdrift.Warehouse
     /// </summary>
     public class AppBase
     {
+        private Config _csvConfig;
         private CultureInfo _cultureInfo;
         private IConfigurationRoot _config;
         private DataLake _dataLake;
@@ -96,6 +98,15 @@ namespace Bygdrift.Warehouse
                      .AddEnvironmentVariables()
                      .Build();
             }
+        }
+
+        /// <summary>
+        /// Base csv config with FormatKind = FormatKind.Local
+        /// </summary>
+        public Config CsvConfig
+        {
+            get { return _csvConfig ??= new Config(CultureInfo, TimeZoneInfo, FormatKind.Local); }
+            set { _csvConfig = value; }
         }
 
         /// <summary>

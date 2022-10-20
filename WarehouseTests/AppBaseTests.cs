@@ -26,13 +26,6 @@ namespace WarehouseTests
             Assert.IsNotNull(app.LoadedUtc);
             Assert.IsNotNull(app.LoadedLocal);
             Assert.AreEqual(app.LoadedLocal.ToUniversalTime(), app.LoadedUtc);
-
-            var time = new DateTime(2022,1,1);
-            var csv1 = new Csv(new Config(null, "u"), "date").AddRow(time).ToCsvString();
-            var csv2 = new Csv(new Config("da-DK", "u"), "date").AddRow(time).ToCsvString();
-            var csv3 = new Csv(new Config("en-US", "u"), "date").AddRow(time).ToCsvString();
-
-
         }
 
         [TestMethod]
