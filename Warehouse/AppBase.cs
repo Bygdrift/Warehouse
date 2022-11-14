@@ -58,6 +58,7 @@ namespace Bygdrift.Warehouse
         private DataLake _dataLake;
         private DataLakeQueue _dataLakeQueue;
         private string _dataLakeConnectionString;
+        private Tools.CsvTool.Helpers.DateHelper _dateHelper;
         //private string _dataLakeContainer;
         //private string _functionAppName;
         private string _hostName;
@@ -154,6 +155,11 @@ namespace Bygdrift.Warehouse
                 return _dataLakeConnectionString;
             }
         }
+
+        /// <summary>
+        /// A class that verifies if a value is a date. It is possible to replace the predefined date formats, if another culture than the predefined should be used. Dot it by replacing the 
+        /// </summary>
+        public Tools.CsvTool.Helpers.DateHelper DateHelper { get { return _dateHelper ??= new Tools.CsvTool.Helpers.DateHelper(CsvConfig); } }
 
         /// <summary>
         /// If is running local or in Azure. Gets determined, by if there is a local.settings.json, appsettings.json or appsettings.Development.json in the bin folder.

@@ -24,7 +24,14 @@ namespace Bygdrift.Warehouse
                 {
                     var vaultUri = app.Config["VaultUri"];
                     if (vaultUri != null)
-                        _secretClient = new SecretClient(vaultUri: new Uri(vaultUri), credential: new DefaultAzureCredential());
+                        try
+                        {
+                            _secretClient = new SecretClient(vaultUri: new Uri(vaultUri), credential: new DefaultAzureCredential());
+                        }
+                        catch (Exception e)
+                        {
+                            throw new Exception($"The 'VaultUri': '{vaultUri}' from appSettings, gave this error: {e.Message}.");
+                        }
                     else if (!app.IsRunningLocal)
                         throw new Exception("'VaultUri' is not in appSettings. The module has been stopped.");
                 }
