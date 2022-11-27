@@ -41,6 +41,10 @@ All modules can be installed and facilitated with ARM templates(Azure Resource M
 
 [The license](LICENSE.md)
 
+## Contact
+
+For information or consultant hours, please write to bygdrift@gmail.com.
+
 # Updates
 
 ## 1.1.0
