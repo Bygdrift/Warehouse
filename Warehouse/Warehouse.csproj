@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFramework>net6.0</TargetFramework>
-		<Version>1.2.6</Version>
+		<Version>1.2.7</Version>
 		<Authors>kenboc</Authors>
 		<Company>Bygdrift</Company>
 		<Description>Create Azure App functions to fetch data from an unspecified data source, wash data and ingest to a data lake and a database in Azure. This nuget package handles communication with data lake and database.</Description>
@@ -20,7 +20,7 @@
 		<AssemblyName>Bygdrift.Warehouse</AssemblyName>
 		<RootNamespace>Bygdrift.Warehouse</RootNamespace>
 		<PackageReleaseNotes>
-			minor
+			Minor updates in CSVTool
 		</PackageReleaseNotes>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -43,19 +43,19 @@
 	
 	<!--All th librarys used by Bygdrift.Tools-->
 	<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-		<PackageReference Include="ClosedXML" Version="0.95.4" />
-		<PackageReference Include="ExcelDataReader" Version="3.6.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-		<PackageReference Include="Azure.Storage.Files.DataLake" Version="12.10.0" />
-		<PackageReference Include="Azure.Storage.Queues" Version="12.10.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-		<PackageReference Include="RepoDb.SqlServer.BulkOperations" Version="1.1.6" />
+		<!--<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />-->
+		<!--<PackageReference Include="ClosedXML" Version="0.95.4" />-->
+		<!--<PackageReference Include="ExcelDataReader" Version="3.6.0" />-->
+		<!--<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />-->
+		<!--<PackageReference Include="Azure.Storage.Files.DataLake" Version="12.10.0" />-->
+		<!--<PackageReference Include="Azure.Storage.Queues" Version="12.10.0" />-->
+		<!--<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />-->
+		<!--<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />-->
+		<!--<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />-->
+		<!--<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />-->
+		<!--<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />-->
+		<!--<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />-->
+		<!--<PackageReference Include="RepoDb.SqlServer.BulkOperations" Version="1.1.6" />-->
 	</ItemGroup>
 
 	<!--This is all the files from Bygdrift.Tools.DataLakeTool and from Bygdrift.Tools.MssqlTool-->
