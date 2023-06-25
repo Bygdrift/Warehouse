@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.11.1.770",
-      "templateHash": "11209960574872879514"
+      "version": "0.18.4.5664",
+      "templateHash": "5509309609574105364"
     }
   },
   "parameters": {
@@ -38,14 +38,15 @@
       "type": "string",
       "defaultValue": "Warehouse",
       "metadata": {
-        "description": "The username to the SQL server."
+        "description": "The username to the SQL server. It is adviced to only use alpha-numeric characters"
       }
     },
     "mssqlServerPassword": {
-      "type": "secureString",
+      "type": "securestring",
       "metadata": {
-        "description": "The password to the SQL server."
-      }
+        "description": "The password to the SQL server. At least 8 characters. Don't use non-alphanumeric characters - it can raise errors with backslash for instance."
+      },
+      "minLength": 8
     },
     "mssqlDatabaseName": {
       "type": "string",
@@ -63,7 +64,7 @@
   "resources": [
     {
       "type": "Microsoft.KeyVault/vaults",
-      "apiVersion": "2019-09-01",
+      "apiVersion": "2022-07-01",
       "name": "[format('keyvault-{0}', uniqueString(resourceGroup().id))]",
       "location": "[variables('location')]",
       "properties": {
@@ -187,7 +188,7 @@
       "apiVersion": "2019-09-01",
       "name": "[format('{0}/{1}', format('keyvault-{0}', uniqueString(resourceGroup().id)), 'Secret--MssqlConnectionString')]",
       "properties": {
-        "value": "[format('Server=tcp:{0},1433;Initial Catalog={1};Persist Security Info=False;User ID={2};Password={3};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;', reference(resourceId('Microsoft.Sql/servers', parameters('mssqlServerName'))).fullyQualifiedDomainName, parameters('mssqlDatabaseName'), parameters('mssqlServerUser'), parameters('mssqlServerPassword'))]"
+        "value": "[format('Server=tcp:{0},1433;Initial Catalog={1};Persist Security Info=False;User ID={2};Password={3};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;', reference(resourceId('Microsoft.Sql/servers', parameters('mssqlServerName')), '2020-11-01-preview').fullyQualifiedDomainName, parameters('mssqlDatabaseName'), parameters('mssqlServerUser'), parameters('mssqlServerPassword'))]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', format('keyvault-{0}', uniqueString(resourceGroup().id)))]",
