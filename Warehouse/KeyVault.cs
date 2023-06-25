@@ -16,7 +16,12 @@ namespace Bygdrift.Warehouse
         /// <summary>Init</summary>
         public KeyVault(AppBase app) => this.app = app;
 
-        private SecretClient SecretClient
+        /// <summary>
+        /// The SecretClient provides synchronous and asynchronous methods to manage <see cref="KeyVaultSecret"/> in the Azure Key Vault. The client
+        /// supports creating, retrieving, updating, deleting, purging, backing up, restoring, and listing <see cref="KeyVaultSecret"/>.
+        /// The client also supports listing <see cref="DeletedSecret"/> for a soft-delete enabled Azure Key Vault.
+        /// </summary>
+        public SecretClient SecretClient
         {
             get
             {
