@@ -46,6 +46,20 @@ All modules can be installed and facilitated with ARM templates(Azure Resource M
 For information or consultant hours, please write to bygdrift@gmail.com.
 
 # Updates
+## 1.3.2
+Breaking changes in the csvTool: The following methods has changed names: FromCsvFile => AddCsvFile, FromCsvStream => AddCsvStream, FromDataTable => AddDataTable, FromExcelFile => AddExcelFile, FromExcelStream => AddExcelStream, FromExpandoObjects => AddExpandoObjects, FromJson => AddJson.
+Now they all can add data to an existing csv like:
+```c#
+Csv csv = new Csv("Id, Name").AddRows("A, Anders");
+Csv csvIn = new Csv("Id, Name").AddRows("B, Bo");
+csv.AddCsv(csvIn);
+```
+And csv equals:
+| Id | Name   |
+|----|--------|
+| A  | Anders |
+| B  | Bo     |
+
 
 ## 1.1.0
 Decentralized this library, so it now refers to Nuget packages DataLakeTool, LogTool, MssqTool, CsvTool instead of having all this inside of one big library.
