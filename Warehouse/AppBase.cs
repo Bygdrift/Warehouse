@@ -106,7 +106,7 @@ namespace Bygdrift.Warehouse
         /// </summary>
         public Config CsvConfig
         {
-            get { return _csvConfig ??= new Config(CultureInfo, TimeZoneInfo, FormatKind.Local); }
+            get { return _csvConfig ??= new Config(CultureInfo, TimeZoneInfo, DateFormatKind.Local); }
             set { _csvConfig = value; }
         }
 
