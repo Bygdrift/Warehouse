@@ -1,6 +1,8 @@
 ﻿using Bygdrift.Tools.CsvTool;
 using Bygdrift.Warehouse;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 
@@ -13,6 +15,11 @@ namespace WarehouseTests
         public void basic()
         {
             var app = new AppBase();
+            var b = JsonConvert.SerializeObject(app);
+
+
+
+
             Assert.AreEqual(app.HostName, "https://<appFunctionName>.azurewebsites.net");
             Assert.AreEqual(app.ModuleName, "Warehouse");
             Assert.AreEqual(app.Mssql.ConnectionString, "Empty");

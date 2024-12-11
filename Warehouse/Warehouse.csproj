@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<Version>1.3.3-alpha2</Version>
+		<TargetFramework>net8.0</TargetFramework>
+		<Version>2.0.1</Version>
 		<Authors>kenboc</Authors>
 		<Company>Bygdrift</Company>
 		<Description>Create Azure App functions to fetch data from an unspecified data source, wash data and ingest to a data lake and a database in Azure. This nuget package handles communication with data lake and database.</Description>
@@ -20,7 +20,7 @@
 		<AssemblyName>Bygdrift.Warehouse</AssemblyName>
 		<RootNamespace>Bygdrift.Warehouse</RootNamespace>
 		<PackageReleaseNotes>
-			Breaking changes in the CsvTool: The following methods has changed names: FromCsvFile =&gt; AddCsvFile, FromCsvStream =&gt; AddCsvStream, FromDataTable =&gt; AddDataTable, FromExcelFile =&gt; AddExcelFile, FromExcelStream =&gt; AddExcelStream, FromExpandoObjects =&gt; AddExpandoObjects, FromJson =&gt; AddJson. Now they all can add data to an existing csv. See the example here: https://github.com/Bygdrift/Warehouse#132
+			Is now compliant with net8.0.
 		</PackageReleaseNotes>
 		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
@@ -28,36 +28,19 @@
 
 	<!--Warehouse-->
 	<ItemGroup>
-		<PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.3.0" />
-		<PackageReference Include="Azure.Storage.Files.DataLake" Version="12.10.0" />
-		<PackageReference Include="Azure.Storage.Queues" Version="12.10.0" />
-		<PackageReference Include="ClosedXML" Version="0.95.4" />
-		<PackageReference Include="ExcelDataReader" Version="3.6.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+		<PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.7.0" />
+		<PackageReference Include="Azure.Storage.Files.DataLake" Version="12.21.0" />
+		<PackageReference Include="Azure.Storage.Queues" Version="12.21.0" />
+		<PackageReference Include="ClosedXML" Version="0.104.2" />
+		<PackageReference Include="ExcelDataReader" Version="3.7.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.2" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="RepoDb.SqlServer.BulkOperations" Version="1.13.1" />
 	</ItemGroup>
 	
-	<!--All th librarys used by Bygdrift.Tools-->
-	<!--<ItemGroup>
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-		<PackageReference Include="ClosedXML" Version="0.95.4" />
-		<PackageReference Include="ExcelDataReader" Version="3.6.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-		<PackageReference Include="Azure.Storage.Files.DataLake" Version="12.10.0" />
-		<PackageReference Include="Azure.Storage.Queues" Version="12.10.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-		<PackageReference Include="RepoDb.SqlServer.BulkOperations" Version="1.1.6" />
-	</ItemGroup>-->
-
 	<!--This is all the files from Bygdrift.Tools.DataLakeTool and from Bygdrift.Tools.MssqlTool-->
 	<ItemGroup>
 		<Compile Include="..\..\Tools\CsvTool\CsvTool\Attributes\CsvIgnore.cs" Link="Tools\CsvTool\Attributes\CsvIgnore.cs" />

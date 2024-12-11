@@ -106,8 +106,8 @@ namespace Bygdrift.Warehouse
             if (app.IsRunningLocal && string.IsNullOrEmpty(vaultUri))  //Then local and the setting vaultUri has not been set:
             {
                 Microsoft.Extensions.Configuration.IConfigurationRoot g = app.Config;
-                var data = g.GetChildren().Where(o=> o.Key.StartsWith("Secret--"));
-                if(data.Any())
+                var data = g.GetChildren().Where(o => o.Key.StartsWith("Secret--"));
+                if (data.Any())
                     foreach (var item in data)
                         res.Add(item.Key, item.Value);
             }

@@ -1,14 +1,14 @@
-﻿using System;
-using System.Linq;
+﻿using Bygdrift.Tools.CsvTool;
 using Bygdrift.Tools.DataLakeTool;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using Bygdrift.Tools.LogTool;
 using Bygdrift.Tools.MssqlTool;
 using Bygdrift.Warehouse.Attributes;
-using System.IO;
-using Bygdrift.Tools.LogTool;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Globalization;
-using Bygdrift.Tools.CsvTool;
+using System.IO;
+using System.Linq;
 
 namespace Bygdrift.Warehouse
 {
@@ -275,7 +275,10 @@ namespace Bygdrift.Warehouse
             }
         }
 
-        internal string MssqlConnectionString
+        /// <summary>
+        /// The connectionstring for the database. 
+        /// </summary>
+        public string MssqlConnectionString
         {
             get
             {
@@ -300,7 +303,7 @@ namespace Bygdrift.Warehouse
                 if (_timeZoneInfo == null)
                 {
                     var timeZoneId = Config["TimeZoneId"];
-                    if(timeZoneId != null)
+                    if (timeZoneId != null)
                         _timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(timeZoneId);
                     else
                         _timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("GMT Standard Time");
